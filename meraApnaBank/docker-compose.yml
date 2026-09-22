@@ -1,0 +1,24 @@
+services:
+  north-db:
+    image: postgres:16-alpine
+    container_name: demo-north-db
+    environment:
+      POSTGRES_DB: north
+      POSTGRES_USER: north_app
+      POSTGRES_PASSWORD: north_app_pw
+    ports:
+      - "55432:5432"
+    volumes:
+      - ./dataaccess-ms-accounts/db/north-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  south-db:
+    image: postgres:16-alpine
+    container_name: demo-south-db
+    environment:
+      POSTGRES_DB: south
+      POSTGRES_USER: south_app
+      POSTGRES_PASSWORD: south_app_pw
+    ports:
+      - "55433:5432"
+    volumes:
+      - ./dataaccess-ms-accounts/db/south-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
