@@ -24,7 +24,7 @@ public class BranchResource {
     @GET
     @Path("/{region}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Map<String, Object>> getBranches(@PathParam("region") String region) {
+    public List<BranchDto> getBranches(@PathParam("region") String region) {
         return branchClient.getBranches(region);
     }
 

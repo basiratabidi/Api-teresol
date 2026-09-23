@@ -29,9 +29,9 @@ public class BranchResource {
     @GET
     @Path("/{region}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Map<String, Object>> getBranches(@PathParam("region") String region) throws Exception {
+    public List<BranchDto> getBranches(@PathParam("region") String region) throws Exception {
         RegionType regionType = RegionType.valueOf(region.toUpperCase());
-        List<Map<String, Object>> results = new ArrayList<>();
+        List<BranchDto> results = new ArrayList<>();
 
         try (Connection connection = datasources.getConnection(regionType);
                 Statement statement = connection.createStatement();
@@ -39,12 +39,12 @@ public class BranchResource {
                         "SELECT branch_code, branch_name, city, region_code FROM branch")) {
 
             while (resultSet.next()) {
-                Map<String, Object> row = new HashMap<>();
-                row.put("branchCode", resultSet.getString("branch_code"));
-                row.put("branchName", resultSet.getString("branch_name"));
-                row.put("city", resultSet.getString("city"));
-                row.put("regionCode", resultSet.getString("region_code"));
-                results.add(row);
+                BranchDto dto = new BranchDto();
+                dto.branchCode = resultSet.getString("branch_code");
+                dto.branchName = resultSet.getString("branch_name");
+                dto.city = resultSet.getString("city");
+                dto.regionCode = resultSet.getString("region_code");
+                results.add(dto);
             }
         }
         return results;

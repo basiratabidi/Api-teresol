@@ -25,6 +25,20 @@ services:
       - ./dataaccess-ms-accounts/db/south-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
       - south-data:/var/lib/postgresql/data
 
+  east-db:
+    image: postgres:16-alpine
+    container_name: demo-east-db
+    environment:
+      POSTGRES_DB: east
+      POSTGRES_USER: east_app
+      POSTGRES_PASSWORD: east_app_pw
+    ports:
+      - "55434:5432"
+    volumes:
+      - ./dataaccess-ms-accounts/db/east-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - east-data:/var/lib/postgresql/data
+
 volumes:
   north-data:
   south-data:
+  east-data:

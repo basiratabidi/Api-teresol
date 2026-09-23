@@ -20,7 +20,7 @@ public interface BranchClient {
     @GET
     @Path("/{region}")
     @Produces(MediaType.APPLICATION_JSON)
-    List<Map<String, Object>> getBranches(@PathParam("region") String region);
+    List<BranchDto> getBranches(@PathParam("region") String region);
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)

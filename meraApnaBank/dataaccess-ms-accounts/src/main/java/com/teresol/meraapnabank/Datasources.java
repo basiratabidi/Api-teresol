@@ -18,10 +18,15 @@ public class Datasources {
     @DataSource("south")
     AgroalDataSource southDataSource;
 
+    @Inject
+    @DataSource("east")
+    AgroalDataSource eastDataSource;
+
     public Connection getConnection(RegionType region) throws SQLException {
         return switch (region) {
             case NORTH -> northDataSource.getConnection();
             case SOUTH -> southDataSource.getConnection();
+            case EAST -> eastDataSource.getConnection();
         };
     }
 }
