@@ -6,6 +6,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -71,6 +72,31 @@ public class BranchResource {
             Map<String, Object> result = new HashMap<>();
             result.put("rowsInserted", rowsInserted);
             result.put("branchCode", request.branchCode);
+            return result;
+        }
+    }
+
+    @PUT
+    @Path("/{region}/{branchCode}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> updateBranch(@PathParam("region") String region,
+            @PathParam("branchCode") String branchCode, UpdateBranchRequest request) throws Exception {
+        RegionType regionType = RegionType.valueOf(region.toUpperCase());
+        String updateSql = "UPDATE branch SET branch_name = ?, city = ? WHERE branch_code = ?";
+
+        try (Connection connection = datasources.getConnection(regionType);
+                PreparedStatement statement = connection.prepareStatement(updateSql)) {
+
+            statement.setString(1, request.branchName);
+            statement.setString(2, request.city);
+            statement.setString(3, branchCode);
+
+            int rowsUpdated = statement.executeUpdate();
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("rowsUpdated", rowsUpdated);
+            result.put("branchCode", branchCode);
             return result;
         }
     }
