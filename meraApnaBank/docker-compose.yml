@@ -10,6 +10,7 @@ services:
       - "55432:5432"
     volumes:
       - ./dataaccess-ms-accounts/db/north-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - north-data:/var/lib/postgresql/data
 
   south-db:
     image: postgres:16-alpine
@@ -22,3 +23,8 @@ services:
       - "55433:5432"
     volumes:
       - ./dataaccess-ms-accounts/db/south-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - south-data:/var/lib/postgresql/data
+
+volumes:
+  north-data:
+  south-data:
