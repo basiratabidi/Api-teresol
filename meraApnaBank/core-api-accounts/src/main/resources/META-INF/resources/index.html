@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="assets/three.min.js"></script>
 <style>
 :root{
   --green:#087443;--green-2:#0b5d3b;--green-dark:#06452d;--green-soft:#e9f5ef;
@@ -71,8 +71,8 @@ body.authed #auth{display:none}
 .blob.b3{width:260px;height:260px;background:#0e6b46;left:45%;top:55%;animation-delay:-9s}
 .skyline{position:absolute;left:0;right:0;bottom:0;height:150px;background:url(assets/skyline.svg) repeat-x bottom/800px 100%;animation:skylineDrift 60s linear infinite;opacity:.9;pointer-events:none}
 .auth-shell{position:relative;z-index:2;width:100%;max-width:920px;display:grid;grid-template-columns:1fr 1fr;border-radius:26px;overflow:hidden;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 30px 80px rgba(0,0,0,.4);animation:rise .8s cubic-bezier(.2,.7,.2,1) both}
-.auth-side{position:relative;padding:40px 36px 150px;color:#fff;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
-.auth-side>*{position:relative;z-index:2}
+.auth-side{position:relative;padding:40px 36px 130px;color:#fff;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.auth-side>*:not(.skyline):not(.float-card){position:relative;z-index:2}
 .auth-side .logo{width:104px;height:104px;border-radius:24px;background:#fff;padding:6px;margin-bottom:22px;box-shadow:0 12px 30px rgba(0,0,0,.25);animation:floatYSlow 4s ease-in-out infinite;overflow:hidden}
 .auth-side .logo img{width:100%;height:100%;object-fit:contain}
 .auth-side .logo:after,.brand-mark:after{content:"";position:absolute;top:0;bottom:0;left:0;width:30%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);animation:logoShine 3.6s ease-in-out infinite}
@@ -80,8 +80,8 @@ body.authed #auth{display:none}
 .auth-side p{margin:0;font-size:.82rem;line-height:1.7;color:rgba(255,255,255,.75)}
 .auth-side ul{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:9px;font-size:.76rem;color:rgba(255,255,255,.88)}
 .auth-side li:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);margin-right:10px;animation:goldPulse 2s ease infinite}
-.auth-side .float-card{position:absolute;z-index:1;right:-30px;bottom:70px;width:210px;filter:drop-shadow(0 18px 24px rgba(0,0,0,.35));animation:floatY 5s ease-in-out infinite;transform:rotate(-8deg)}
-.auth-side .skyline{z-index:0}
+.auth-side .float-card{position:absolute;z-index:1;right:-46px;bottom:18px;width:170px;filter:drop-shadow(0 18px 24px rgba(0,0,0,.35));animation:floatY 5s ease-in-out infinite;transform:rotate(-8deg)}
+.auth-side .skyline{z-index:0;height:110px}
 .auth-card{background:#fff;padding:34px 36px;display:flex;flex-direction:column;justify-content:center}
 .auth-card .card-logo{display:block;width:118px;height:auto;margin:-8px auto 4px;animation:fadeSlideIn .8s ease both}
 .auth-card h2{margin:0 0 4px;font-size:1.3rem;font-weight:800;text-align:center}
@@ -212,10 +212,28 @@ tbody tr:hover{background:#f1f8f4}tbody tr:last-child td{border-bottom:0}
 .page-head img{height:74px;width:auto;animation:floatY 4.5s ease-in-out infinite}
 .page-head img.tint{filter:invert(.3) sepia(1) hue-rotate(95deg) saturate(3);opacity:.35;height:60px}
 
+/* mobile login backdrop, sidebar footer, modal, meter, empty states */
+.sidebar-bottom{background:linear-gradient(180deg,rgba(5,45,30,0),rgba(5,45,30,.94) 45%);margin:0 -16px -22px;padding:26px 24px 22px;border-top:0}
+.pw-meter{height:5px;border-radius:5px;background:#e3e9e6;margin-top:8px;overflow:hidden}
+.pw-meter span{display:block;height:100%;width:0;border-radius:5px;transition:width .3s ease,background .3s ease}
+.pw-hint{font-size:.66rem;color:var(--muted);margin-top:5px;min-height:1em}
+.modal{position:fixed;inset:0;z-index:200;display:none;place-items:center;padding:20px;background:rgba(6,30,20,.55);backdrop-filter:blur(4px)}
+.modal.open{display:grid;animation:fadeSlideIn .2s ease both}
+.modal-box{background:#fff;border-radius:18px;padding:26px;max-width:400px;width:100%;box-shadow:0 30px 70px rgba(0,0,0,.35);animation:rise .3s cubic-bezier(.2,.7,.2,1) both}
+.modal-box h3{margin:0 0 8px;font-size:1.05rem}.modal-box p{margin:0 0 20px;font-size:.82rem;line-height:1.6;color:var(--muted)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+.modal-actions .btn.ghost{background:#fff;border:1px solid var(--border);color:var(--green-dark)}
+.empty-row td{text-align:center;color:var(--muted);padding:26px 12px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid #cfe3d8;border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+input.invalid{border-color:var(--danger);box-shadow:0 0 0 3px rgba(179,38,30,.1)}
+
 footer{color:var(--muted);font-size:.68rem;padding:18px 0 0;border-top:1px solid var(--border);margin-top:28px}
 
 @media(max-width:1050px){.stats,.region-grid{grid-template-columns:repeat(2,1fr)}.feature-grid{grid-template-columns:repeat(2,1fr)}.hero-art{width:230px}}
 @media(max-width:760px){
+  #auth:after{content:"";position:fixed;left:0;right:0;bottom:0;height:130px;background:url(assets/skyline.svg) repeat-x bottom/640px 100%;animation:skylineDrift 60s linear infinite;pointer-events:none;z-index:1}
+  .sidebar-bottom{margin:0 -10px -18px;padding:22px 10px 18px}
   .auth-shell{grid-template-columns:1fr}.auth-side{display:none}.auth-card{padding:30px 24px}
   .sidebar{width:76px;padding:18px 10px}
   .brand{padding:7px 7px 25px}
@@ -268,13 +286,19 @@ footer{color:var(--muted);font-size:.68rem;padding:18px 0 0;border-top:1px solid
         <div id="fld-name" style="display:none"><label for="au-name">Full name</label><input id="au-name" autocomplete="name" placeholder="Ayesha Khan"></div>
         <div><label for="au-email">Email</label><input id="au-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
         <div><label for="au-password">Password</label>
-          <div class="pw-wrap"><input id="au-password" type="password" autocomplete="current-password" placeholder="At least 8 characters"><button type="button" class="pw-toggle" onclick="togglePw()">Show</button></div></div>
+          <div class="pw-wrap"><input id="au-password" type="password" autocomplete="current-password" placeholder="At least 8 characters" oninput="updateMeter()"><button type="button" class="pw-toggle" onclick="togglePw()">Show</button></div>
+          <div id="pw-strength" style="display:none"><div class="pw-meter"><span id="pw-bar"></span></div><div class="pw-hint" id="pw-hint"></div></div></div>
         <div id="fld-confirm" style="display:none"><label for="au-confirm">Confirm password</label><input id="au-confirm" type="password" autocomplete="new-password" placeholder="Repeat password"></div>
         <button id="auth-submit" class="btn" type="submit">Log in</button>
       </form>
       <div id="auth-status" class="status"></div>
     </div>
   </div>
+</div>
+
+<div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-box"><h3 id="modal-title"></h3><p id="modal-text"></p>
+    <div class="modal-actions"><button class="btn ghost" id="modal-cancel" type="button">Cancel</button><button class="btn danger" id="modal-ok" type="button">Confirm</button></div></div>
 </div>
 
 <div class="app">
@@ -576,6 +600,70 @@ function animateNumber(el, target) {
     requestAnimationFrame(tick);
 }
 
+// ---- Helpers: formatting, validation, confirm dialog ----
+function fmtMoney(n) {
+    return 'PKR ' + Number(n).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function markInvalid(el) {
+    el.classList.add('invalid'); el.focus();
+    el.addEventListener('input', function () { el.classList.remove('invalid'); }, { once: true });
+}
+
+function requireFields(statusId, pairs) {
+    for (const p of pairs) {
+        const el = document.getElementById(p[0]);
+        if (!el.value.trim()) {
+            markInvalid(el);
+            setStatus(statusId, p[1] + ' is required.', true);
+            return false;
+        }
+    }
+    return true;
+}
+
+function requireAmount(statusId, id, allowZero) {
+    const el = document.getElementById(id);
+    const v = parseFloat(el.value || (allowZero ? '0' : ''));
+    if (isNaN(v) || v < 0 || (!allowZero && v === 0)) {
+        markInvalid(el);
+        setStatus(statusId, allowZero ? 'Enter an amount of zero or more.' : 'Enter an amount greater than zero.', true);
+        return false;
+    }
+    return true;
+}
+
+function askConfirm(title, text, okLabel) {
+    return new Promise(function (resolve) {
+        const modal = document.getElementById('modal');
+        const ok = document.getElementById('modal-ok'), cancel = document.getElementById('modal-cancel');
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-text').textContent = text;
+        ok.textContent = okLabel || 'Confirm';
+        modal.classList.add('open'); ok.focus();
+        function done(result) {
+            modal.classList.remove('open');
+            ok.onclick = cancel.onclick = null; document.removeEventListener('keydown', onKey);
+            resolve(result);
+        }
+        function onKey(e) { if (e.key === 'Escape') done(false); }
+        document.addEventListener('keydown', onKey);
+        ok.onclick = function () { done(true); };
+        cancel.onclick = function () { done(false); };
+    });
+}
+
+function tableMessage(tbody, cols, html) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="' + cols + '">' + html + '</td></tr>';
+}
+
+// press Enter in any form row to trigger its primary button
+document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' || !e.target.matches('.card .row input, .card .row select')) return;
+    const btn = e.target.closest('.row').querySelector('.btn.primary');
+    if (btn) { e.preventDefault(); btn.click(); }
+});
+
 // ---- Home ----
 async function loadRegionStats() {
     const grid = document.getElementById('region-grid');
@@ -613,10 +701,12 @@ async function loadRegionStats() {
 // ---- Branches ----
 async function loadBranches() {
     const region = document.getElementById('branch-region').value;
+    const tbody = document.querySelector('#branch-table tbody');
+    tableMessage(tbody, 4, '<span class="spinner"></span>Loading branches...');
     try {
         const branches = await callApi('/branches/' + region);
-        const tbody = document.querySelector('#branch-table tbody');
         tbody.innerHTML = '';
+        if (!branches.length) tableMessage(tbody, 4, 'No branches in this region yet.');
         branches.forEach(function (b, i) {
             const tr = document.createElement('tr');
             tr.style.animation = 'fadeSlideIn .3s ease both';
@@ -626,11 +716,13 @@ async function loadBranches() {
         });
         setStatus('branch-status', branches.length + ' branch(es) loaded.', false);
     } catch (err) {
+        tableMessage(tbody, 4, 'Could not load branches.');
         setStatus('branch-status', err.message, true);
     }
 }
 
 async function createBranch() {
+    if (!requireFields('branch-status', [['nb-code', 'Branch code'], ['nb-name', 'Branch name'], ['nb-city', 'City']])) return;
     const request = {
         branchCode: document.getElementById('nb-code').value,
         branchName: document.getElementById('nb-name').value,
@@ -651,6 +743,7 @@ async function createBranch() {
 }
 
 async function updateBranch() {
+    if (!requireFields('branch-status', [['ub-code', 'Branch code'], ['ub-name', 'New name'], ['ub-city', 'New city']])) return;
     const region = document.getElementById('ub-region').value;
     const code = document.getElementById('ub-code').value;
     const request = {
@@ -671,9 +764,10 @@ async function updateBranch() {
 }
 
 async function deleteBranch() {
+    if (!requireFields('branch-status', [['ub-code', 'Branch code']])) return;
     const region = document.getElementById('ub-region').value;
     const code = document.getElementById('ub-code').value;
-    if (!confirm('Delete branch ' + code + '? This cannot be undone.')) return;
+    if (!(await askConfirm('Delete branch', 'Delete branch ' + code + '? This cannot be undone.', 'Delete'))) return;
     try {
         await callApi('/branches/' + region + '/' + code, { method: 'DELETE' });
         setStatus('branch-status', 'Branch ' + code + ' deleted.', false);
@@ -686,25 +780,30 @@ async function deleteBranch() {
 // ---- Accounts ----
 async function loadAccounts() {
     const region = document.getElementById('account-region').value;
+    const tbody = document.querySelector('#account-table tbody');
+    tableMessage(tbody, 5, '<span class="spinner"></span>Loading accounts...');
     try {
         const accounts = await callApi('/accounts/' + region);
-        const tbody = document.querySelector('#account-table tbody');
         tbody.innerHTML = '';
+        if (!accounts.length) tableMessage(tbody, 5, 'No accounts in this region yet.');
         accounts.forEach(function (a, i) {
             const tr = document.createElement('tr');
             tr.style.animation = 'fadeSlideIn .3s ease both';
             tr.style.animationDelay = (i * 30) + 'ms';
             tr.innerHTML = '<td>' + esc(a.accountNumber) + '</td><td>' + esc(a.accountHolderName) + '</td><td>' + esc(a.branchCode)
-                + '</td><td>' + esc(a.accountType) + '</td><td>' + esc(a.balance) + '</td>';
+                + '</td><td>' + esc(a.accountType) + '</td><td>' + esc(fmtMoney(a.balance)) + '</td>';
             tbody.appendChild(tr);
         });
         setStatus('account-status', accounts.length + ' account(s) loaded.', false);
     } catch (err) {
+        tableMessage(tbody, 5, 'Could not load accounts.');
         setStatus('account-status', err.message, true);
     }
 }
 
 async function createAccount() {
+    if (!requireFields('account-status', [['na-number', 'Account number'], ['na-holder', 'Holder name'], ['na-branch', 'Branch code']])) return;
+    if (!requireAmount('account-status', 'na-balance', true)) return;
     const request = {
         accountNumber: document.getElementById('na-number').value,
         accountHolderName: document.getElementById('na-holder').value,
@@ -727,6 +826,8 @@ async function createAccount() {
 }
 
 async function updateAccount() {
+    if (!requireFields('account-status', [['ua-number', 'Account number'], ['ua-holder', 'Holder name']])) return;
+    if (!requireAmount('account-status', 'ua-balance', true)) return;
     const region = document.getElementById('ua-region').value;
     const number = document.getElementById('ua-number').value;
     const request = {
@@ -748,9 +849,10 @@ async function updateAccount() {
 }
 
 async function deleteAccount() {
+    if (!requireFields('account-status', [['ua-number', 'Account number']])) return;
     const region = document.getElementById('ua-region').value;
     const number = document.getElementById('ua-number').value;
-    if (!confirm('Close account ' + number + '? This cannot be undone.')) return;
+    if (!(await askConfirm('Close account', 'Close account ' + number + '? This cannot be undone.', 'Close account'))) return;
     try {
         await callApi('/accounts/' + region + '/' + number, { method: 'DELETE' });
         setStatus('account-status', 'Account ' + number + ' closed.', false);
@@ -762,6 +864,7 @@ async function deleteAccount() {
 
 // ---- Transactions ----
 async function deposit() {
+    if (!requireFields('deposit-status', [['dep-account', 'Account number']]) || !requireAmount('deposit-status', 'dep-amount')) return;
     const region = document.getElementById('dep-region').value;
     const account = document.getElementById('dep-account').value;
     const amount = parseFloat(document.getElementById('dep-amount').value || '0');
@@ -771,13 +874,14 @@ async function deposit() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ amount: amount })
         });
-        setStatus('deposit-status', 'Deposited. New balance: ' + result.balance, false);
+        setStatus('deposit-status', 'Deposited. New balance: ' + fmtMoney(result.balance), false);
     } catch (err) {
         setStatus('deposit-status', err.message, true);
     }
 }
 
 async function withdraw() {
+    if (!requireFields('withdraw-status', [['wd-account', 'Account number']]) || !requireAmount('withdraw-status', 'wd-amount')) return;
     const region = document.getElementById('wd-region').value;
     const account = document.getElementById('wd-account').value;
     const amount = parseFloat(document.getElementById('wd-amount').value || '0');
@@ -787,13 +891,18 @@ async function withdraw() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ amount: amount })
         });
-        setStatus('withdraw-status', 'Withdrawn. New balance: ' + result.balance, false);
+        setStatus('withdraw-status', 'Withdrawn. New balance: ' + fmtMoney(result.balance), false);
     } catch (err) {
         setStatus('withdraw-status', err.message, true);
     }
 }
 
 async function transfer() {
+    if (!requireFields('transfer-status', [['tr-from', 'From account'], ['tr-to', 'To account']]) || !requireAmount('transfer-status', 'tr-amount')) return;
+    const from = document.getElementById('tr-from').value.trim(), to = document.getElementById('tr-to').value.trim();
+    if (from === to) return setStatus('transfer-status', 'Choose two different accounts.', true);
+    const amt = parseFloat(document.getElementById('tr-amount').value);
+    if (!(await askConfirm('Confirm transfer', 'Transfer ' + fmtMoney(amt) + ' from ' + from + ' to ' + to + '?', 'Transfer'))) return;
     const region = document.getElementById('tr-region').value;
     const request = {
         fromAccountNumber: document.getElementById('tr-from').value,
@@ -806,7 +915,7 @@ async function transfer() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(request)
         });
-        setStatus('transfer-status', 'Transferred ' + request.amount + ' from ' + request.fromAccountNumber + ' to ' + request.toAccountNumber + '.', false);
+        setStatus('transfer-status', 'Transferred ' + fmtMoney(request.amount) + ' from ' + request.fromAccountNumber + ' to ' + request.toAccountNumber + '.', false);
     } catch (err) {
         setStatus('transfer-status', err.message, true);
     }
@@ -832,6 +941,23 @@ function setAuthMode(mode) {
     document.getElementById('auth-submit').textContent = signup ? 'Create account' : 'Log in';
     document.getElementById('au-password').autocomplete = signup ? 'new-password' : 'current-password';
     document.getElementById('auth-status').textContent = '';
+    document.getElementById('pw-strength').style.display = signup ? 'block' : 'none';
+    updateMeter();
+}
+
+function updateMeter() {
+    const pw = document.getElementById('au-password').value;
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (pw.length >= 12) score++;
+    if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+    if (/\d/.test(pw) && /[^A-Za-z0-9]/.test(pw)) score++;
+    if (!pw) score = 0;
+    const levels = [['0%', '#e3e9e6', ''], ['25%', '#b3261e', 'Weak'], ['50%', '#e08a1e', 'Fair'], ['75%', '#c9a227', 'Good'], ['100%', '#087443', 'Strong']];
+    const l = levels[score];
+    const bar = document.getElementById('pw-bar');
+    bar.style.width = l[0]; bar.style.background = l[1];
+    document.getElementById('pw-hint').textContent = pw ? (pw.length < 8 ? 'Use at least 8 characters.' : l[2]) : '';
 }
 
 function togglePw() {
@@ -950,8 +1076,11 @@ function coinTexture() {
     // stamp the bank logo on the coin face once it has loaded
     const img = new Image();
     img.onload = function () {
-        g.fillStyle = '#fffaf0'; g.beginPath(); g.arc(128, 128, 100, 0, Math.PI * 2); g.fill();
-        g.drawImage(img, 20, 20, 216, 216);
+        g.save();
+        g.beginPath(); g.arc(128, 128, 100, 0, Math.PI * 2); g.clip();
+        g.fillStyle = '#fffaf0'; g.fillRect(0, 0, 256, 256);
+        g.drawImage(img, 28, 28, 200, 200);
+        g.restore();
         t.needsUpdate = true;
     };
     img.src = 'assets/logo.png';
