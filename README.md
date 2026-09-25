@@ -30,8 +30,18 @@ cross-region querying.
 - **Manual JDBC transactions** for transfers
   (`setAutoCommit(false)` / `commit()` / `rollback()`), not `@Transactional`.
 - **Vanilla HTML/CSS/JS** web UI — no framework, no build step, served as a
-  static resource by Quarkus.
+  static resource by Quarkus. Uses the Montserrat font and Three.js for the 3D
+  scenes (bundled locally, see [docs/frontend.md](docs/frontend.md)).
+- **Built-in authentication** — signup/login with PBKDF2-hashed passwords and
+  HMAC-signed bearer tokens, no extra dependencies (see
+  [docs/authentication.md](docs/authentication.md)).
 - **Postgres 16** — one container per region, via Docker Compose.
+
+## Documentation
+
+- [docs/authentication.md](docs/authentication.md) — how signup, login, tokens and route protection work, and how to harden them
+- [docs/frontend.md](docs/frontend.md) — the web UI: structure, fonts, 3D scenes, animations, assets, validation
+- [meraApnaBank/core-api-accounts/README.md](meraApnaBank/core-api-accounts/README.md) — building and running the core API
 
 ## Prerequisites
 
@@ -77,11 +87,27 @@ All commands are run from the `meraApnaBank` directory.
 
    Runs on <http://localhost:8081>.
 
-4. **Open the web UI** at <http://localhost:8081/>. It has four pages:
+4. **Open the web UI** at <http://localhost:8081/>. You'll see a login screen:
+   choose **Sign up** to create an account, then log in. After signing in there
+   are four pages:
    - **Home** — live per-region branch/account counts and a feature overview
    - **Branches** — list, create, update, delete
    - **Accounts** — list, open, update, close
    - **Transactions** — deposit, withdraw, and transfer between accounts
+
+   Deletes, account closures and transfers ask for confirmation first, forms
+   are validated before anything is sent, and **Log out** is at the bottom of
+   the sidebar.
+
+### Configuration (core-api-accounts)
+
+| Property / env var | Default | Purpose |
+|--------------------|---------|---------|
+| `AUTH_SECRET` (`auth.secret`) | random per start | Key used to sign session tokens. **Set it in production** — otherwise every restart logs everyone out. |
+| `AUTH_USERS_FILE` (`auth.users-file`) | `users.json` (working dir) | Where registered users are stored. Git-ignored. |
+| `auth.token-ttl-seconds` | `28800` (8 h) | How long a session token stays valid. |
+| `quarkus.http.port` | `8081` | HTTP port. |
+| `branch-data-access/mp-rest/url` | `http://localhost:8083` | Address of `dataaccess-ms-accounts`. |
 
 ## Region code prefixes
 
@@ -100,6 +126,35 @@ is enforced server-side on create; anything else gets `400 Bad Request`.
 All endpoints below are served by `core-api-accounts` on port `8081`, which
 forwards them to `dataaccess-ms-accounts`. `{region}` is one of `north`,
 `south`, `east`, `west` (case-insensitive).
+
+**Every `/branches/*` and `/accounts/*` request requires authentication** —
+send `Authorization: Bearer <token>`, using the token returned by
+`/auth/signup` or `/auth/login`. Requests without a valid token get
+`401 {"status":401,"error":"Please sign in to continue."}`.
+
+### Authentication
+
+| Method | Path           | Auth   | Body                                  | Returns |
+|--------|----------------|--------|---------------------------------------|---------|
+| POST   | `/auth/signup` | none   | `{"fullName", "email", "password"}`   | session |
+| POST   | `/auth/login`  | none   | `{"email", "password"}`               | session |
+| GET    | `/auth/me`     | bearer | —                                     | `{"fullName", "email"}` |
+
+A *session* is `{"token", "expiresAt", "user": {"fullName", "email"}}`
+(`expiresAt` is epoch seconds).
+
+```bash
+# sign up, then use the token
+TOKEN=$(curl -s -H 'Content-Type: application/json' \
+  -d '{"fullName":"Ayesha Khan","email":"ayesha@example.com","password":"correct horse 9"}' \
+  http://localhost:8081/auth/signup | jq -r .token)
+
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8081/accounts/north
+```
+
+Rules: full name at least 2 characters, a valid email, password at least 8
+characters. Emails are case-insensitive. See
+[docs/authentication.md](docs/authentication.md) for the design.
 
 ### Branches
 
@@ -150,9 +205,10 @@ Errors come back as JSON: `{"status": <code>, "error": "<message>"}`.
 
 | Status | When |
 |--------|------|
-| `400`  | Unknown region, missing/invalid field, wrong code prefix, insufficient funds |
+| `400`  | Unknown region, missing/invalid field, wrong code prefix, insufficient funds; signup with an invalid name, email or short password |
+| `401`  | Missing, expired or tampered token; wrong email or password at login |
 | `404`  | Branch not found (update/delete); account not found (deposit/withdraw/transfer) |
-| `409`  | Duplicate branch code, or deleting a branch that still has accounts |
+| `409`  | Duplicate branch code, deleting a branch that still has accounts, or signing up with an email that already exists |
 
 ## Running the tests
 
@@ -173,13 +229,15 @@ meraApnaBank/
 ├── core-api-accounts/                  # public REST API + web UI (port 8081)
 │   └── src/main/
 │       ├── java/com/teresol/meraapnabank/
+│       │   ├── auth/                   # AuthService, AuthResource, AuthFilter (signup/login/tokens)
 │       │   ├── resource/               # BranchResource, AccountResource (incl. deposit/withdraw/transfer)
 │       │   ├── service/                # BranchService, AccountService
 │       │   ├── client/                 # BranchClient, AccountClient (REST clients -> port 8083)
 │       │   ├── dto/                    # *Dto, New*Request, Update*Request, AmountRequest, TransferRequest
 │       │   └── exception/              # GlobalExceptionMapper (relays data-access error messages)
 │       └── resources/META-INF/resources/
-│           └── index.html              # Home / Branches / Accounts / Transactions UI
+│           ├── index.html              # login/signup + Home / Branches / Accounts / Transactions UI
+│           └── assets/                 # logo.png, skyline/card/shield SVGs, three.min.js
 └── dataaccess-ms-accounts/             # region-routed JDBC service (port 8083)
     ├── db/{north,south,east,west}-init.sql
     └── src/
@@ -202,7 +260,12 @@ meraApnaBank/
 
 ## Known limitations
 
-- **No authentication** — every endpoint is open.
+- **Authentication is basic** — one shared role: any registered user can do
+  every banking action (no roles or per-user permissions), there's no login
+  rate limiting or password reset, and users live in a local `users.json`
+  rather than a database. Fine for a demo; harden before real use.
+- **`dataaccess-ms-accounts` (port 8083) has no auth** — only the core API
+  enforces it, so port 8083 must not be exposed publicly.
 - **No integration tests** against a real database; only pure-logic unit tests.
 - **Single-region transfers only** — by design, since there's no distributed
   transaction across the separate databases.

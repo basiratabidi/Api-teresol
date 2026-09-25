@@ -1,73 +1,86 @@
 # core-api-accounts
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+The public-facing service of Mera Apna Bank (port **8081**). It:
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+- serves the web UI (`src/main/resources/META-INF/resources/`),
+- handles signup/login and enforces bearer-token authentication,
+- exposes the branches/accounts/transactions REST API and forwards it to
+  `dataaccess-ms-accounts` (port 8083) through a REST client.
 
-## Running the application in dev mode
+It contains no SQL. For the full picture, endpoints and setup of the whole
+project, see the [main README](../../README.md). Related docs:
+[authentication](../../docs/authentication.md) and
+[frontend](../../docs/frontend.md).
 
-You can run your application in dev mode that enables live coding using:
+## Run in dev mode
 
-```shell script
-./mvnw compile quarkus:dev
+Start the databases and `dataaccess-ms-accounts` first (see the main README), then:
+
+```bash
+./mvnw quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+Open <http://localhost:8081/>. Quarkus reloads Java and static-file changes
+automatically.
 
-## Packaging and running the application
+To keep sessions across restarts, set a signing secret first:
 
-The application can be packaged using:
+```bash
+export AUTH_SECRET="$(openssl rand -base64 48)"
+```
 
-```shell script
+## Configuration
+
+`src/main/resources/application.properties`:
+
+| Property | Default | Meaning |
+|----------|---------|---------|
+| `quarkus.http.port` | `8081` | HTTP port |
+| `branch-data-access/mp-rest/url` | `http://localhost:8083` | Data-access service URL |
+| `auth.secret` | `${AUTH_SECRET:}` (random if empty) | Token signing key |
+| `auth.users-file` | `${AUTH_USERS_FILE:users.json}` | User store file (git-ignored) |
+| `auth.token-ttl-seconds` | `28800` | Token lifetime |
+
+## Source layout
+
+```
+src/main/java/com/teresol/meraapnabank/
+├── auth/        AuthService, AuthResource, AuthFilter
+├── resource/    BranchResource, AccountResource
+├── service/     BranchService, AccountService
+├── client/      BranchClient, AccountClient (REST clients)
+├── dto/         request/response types
+└── exception/   GlobalExceptionMapper
+```
+
+## Package and run
+
+```bash
 ./mvnw package
+java -jar target/quarkus-app/quarkus-run.jar
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+An über-jar: `./mvnw package -Dquarkus.package.jar.type=uber-jar`, then
+`java -jar target/*-runner.jar`.
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+Native executable (needs GraalVM, or a container build):
 
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
-
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
+```bash
 ./mvnw package -Dnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
 ./mvnw package -Dnative -Dquarkus.native.container-build=true
 ```
 
-You can then execute your native executable with: `./target/core-api-accounts-1.0.0-SNAPSHOT-runner`
+Dockerfiles are in `src/main/docker/`.
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
+## API docs
 
-## Related Guides
+In dev mode, Swagger UI and the OpenAPI schema are available at
+<http://localhost:8081/q/swagger-ui> and <http://localhost:8081/q/openapi>.
+Note that Swagger UI's "Try it out" needs an `Authorization: Bearer <token>`
+header on the protected endpoints.
 
-- ArC ([guide](https://quarkus.io/guides/cdi-reference)): Build-time oriented CDI Lite implementation for Jakarta Contexts and Dependency Injection
-- SmallRye OpenAPI ([guide](https://quarkus.io/guides/openapi-swaggerui)): Generate OpenAPI schemas and serve Swagger UI for REST API documentation
+## Health check
 
-## Provided Code
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
-
-### RESTEasy JAX-RS
-
-Easily start your RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
+```bash
+curl -i http://localhost:8081/accounts/north   # 401 without a token, 200 with one
+```
