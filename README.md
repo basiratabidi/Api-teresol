@@ -85,14 +85,28 @@ forwards them to `dataaccess-ms-accounts`.
 - `accountType` must be `SAVINGS` or `CURRENT`.
 - An account's `branchCode` must be an existing branch in the same region.
 
+### Money movement
+
+| Method | Path                                          | Body                                                   |
+|--------|-----------------------------------------------|--------------------------------------------------------|
+| POST   | `/accounts/{region}/{accountNumber}/deposit`  | `{"amount": 500.00}`                                   |
+| POST   | `/accounts/{region}/{accountNumber}/withdraw` | `{"amount": 500.00}`                                   |
+| POST   | `/accounts/{region}/transfer`                 | `{"fromAccountNumber", "toAccountNumber", "amount"}`   |
+
+- `amount` must be positive with at most 2 decimal places.
+- Deposit and withdraw return the new `balance`; transfer returns both new balances.
+- A withdrawal or transfer that would take a balance below zero fails with 400.
+- A transfer is atomic: either both balances change or neither does. Both
+  accounts must be in the same region, since each region is a separate database.
+
 ### Errors
 
 Errors come back as JSON: `{"status": 400, "error": "message"}`.
 
 | Status | When                                                              |
 |--------|-------------------------------------------------------------------|
-| 400    | Unknown region, missing/invalid field, or account for a non-existent branch |
-| 404    | Updating or deleting a branch/account that does not exist         |
+| 400    | Unknown region, missing/invalid field, account for a non-existent branch, or insufficient funds |
+| 404    | Updating, deleting, or moving money in/out of a branch/account that does not exist |
 | 409    | Creating a duplicate branch/account, or deleting a branch that still has accounts |
 
 ## Running the tests

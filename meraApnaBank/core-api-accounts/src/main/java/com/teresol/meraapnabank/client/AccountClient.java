@@ -1,7 +1,9 @@
 package com.teresol.meraapnabank.client;
 
 import com.teresol.meraapnabank.dto.AccountDto;
+import com.teresol.meraapnabank.dto.AmountRequest;
 import com.teresol.meraapnabank.dto.NewAccountRequest;
+import com.teresol.meraapnabank.dto.TransferRequest;
 import com.teresol.meraapnabank.dto.UpdateAccountRequest;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -42,4 +44,24 @@ public interface AccountClient {
     @Produces(MediaType.APPLICATION_JSON)
     Map<String, Object> deleteAccount(@PathParam("region") String region,
             @PathParam("accountNumber") String accountNumber);
+
+    @POST
+    @Path("/{region}/{accountNumber}/deposit")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    Map<String, Object> deposit(@PathParam("region") String region,
+            @PathParam("accountNumber") String accountNumber, AmountRequest request);
+
+    @POST
+    @Path("/{region}/{accountNumber}/withdraw")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    Map<String, Object> withdraw(@PathParam("region") String region,
+            @PathParam("accountNumber") String accountNumber, AmountRequest request);
+
+    @POST
+    @Path("/{region}/transfer")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    Map<String, Object> transfer(@PathParam("region") String region, TransferRequest request);
 }

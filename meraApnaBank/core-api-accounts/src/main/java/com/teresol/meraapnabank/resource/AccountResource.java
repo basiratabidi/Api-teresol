@@ -1,7 +1,9 @@
 package com.teresol.meraapnabank.resource;
 
 import com.teresol.meraapnabank.dto.AccountDto;
+import com.teresol.meraapnabank.dto.AmountRequest;
 import com.teresol.meraapnabank.dto.NewAccountRequest;
+import com.teresol.meraapnabank.dto.TransferRequest;
 import com.teresol.meraapnabank.dto.UpdateAccountRequest;
 import com.teresol.meraapnabank.service.AccountService;
 import jakarta.inject.Inject;
@@ -52,5 +54,31 @@ public class AccountResource {
     public Map<String, Object> deleteAccount(@PathParam("region") String region,
             @PathParam("accountNumber") String accountNumber) {
         return accountService.deleteAccount(region, accountNumber);
+    }
+
+    @POST
+    @Path("/{region}/{accountNumber}/deposit")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> deposit(@PathParam("region") String region,
+            @PathParam("accountNumber") String accountNumber, AmountRequest request) {
+        return accountService.deposit(region, accountNumber, request);
+    }
+
+    @POST
+    @Path("/{region}/{accountNumber}/withdraw")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> withdraw(@PathParam("region") String region,
+            @PathParam("accountNumber") String accountNumber, AmountRequest request) {
+        return accountService.withdraw(region, accountNumber, request);
+    }
+
+    @POST
+    @Path("/{region}/transfer")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> transfer(@PathParam("region") String region, TransferRequest request) {
+        return accountService.transfer(region, request);
     }
 }

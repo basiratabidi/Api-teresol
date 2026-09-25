@@ -2,7 +2,9 @@ package com.teresol.meraapnabank.service;
 
 import com.teresol.meraapnabank.client.AccountClient;
 import com.teresol.meraapnabank.dto.AccountDto;
+import com.teresol.meraapnabank.dto.AmountRequest;
 import com.teresol.meraapnabank.dto.NewAccountRequest;
+import com.teresol.meraapnabank.dto.TransferRequest;
 import com.teresol.meraapnabank.dto.UpdateAccountRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -31,5 +33,17 @@ public class AccountService {
 
     public Map<String, Object> deleteAccount(String region, String accountNumber) {
         return accountClient.deleteAccount(region, accountNumber);
+    }
+
+    public Map<String, Object> deposit(String region, String accountNumber, AmountRequest request) {
+        return accountClient.deposit(region, accountNumber, request);
+    }
+
+    public Map<String, Object> withdraw(String region, String accountNumber, AmountRequest request) {
+        return accountClient.withdraw(region, accountNumber, request);
+    }
+
+    public Map<String, Object> transfer(String region, TransferRequest request) {
+        return accountClient.transfer(region, request);
     }
 }
