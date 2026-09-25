@@ -147,6 +147,8 @@ meraApnaBank/
             ├── Tables.java         # BRANCH / ACCOUNT table constants
             └── QueryBuilder.java   # builds SELECT/INSERT/UPDATE/DELETE
 Known limitations
+
+
 No authentication — every endpoint is open.
 No integration tests against a real database; only pure-logic unit tests.
 Transfers are restricted to a single region (no cross-region transfer, by
