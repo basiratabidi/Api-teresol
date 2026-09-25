@@ -1,5 +1,9 @@
-package com.teresol.meraapnabank;
+package com.teresol.meraapnabank.resource;
 
+import com.teresol.meraapnabank.dto.BranchDto;
+import com.teresol.meraapnabank.dto.NewBranchRequest;
+import com.teresol.meraapnabank.dto.UpdateBranchRequest;
+import com.teresol.meraapnabank.service.BranchService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -12,27 +16,25 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Map;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @Path("/branches")
 public class BranchResource {
 
     @Inject
-    @RestClient
-    BranchClient branchClient;
+    BranchService branchService;
 
     @GET
     @Path("/{region}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<BranchDto> getBranches(@PathParam("region") String region) {
-        return branchClient.getBranches(region);
+        return branchService.getBranches(region);
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Object> createBranch(NewBranchRequest request) {
-        return branchClient.createBranch(request);
+        return branchService.createBranch(request);
     }
 
     @PUT
@@ -41,7 +43,7 @@ public class BranchResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Object> updateBranch(@PathParam("region") String region,
             @PathParam("branchCode") String branchCode, UpdateBranchRequest request) {
-        return branchClient.updateBranch(region, branchCode, request);
+        return branchService.updateBranch(region, branchCode, request);
     }
 
     @DELETE
@@ -49,6 +51,6 @@ public class BranchResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Object> deleteBranch(@PathParam("region") String region,
             @PathParam("branchCode") String branchCode) {
-        return branchClient.deleteBranch(region, branchCode);
+        return branchService.deleteBranch(region, branchCode);
     }
 }

@@ -1,4 +1,4 @@
-package com.teresol.meraapnabank;
+package com.teresol.meraapnabank.datasource;
 
 import io.agroal.api.AgroalDataSource;
 import io.quarkus.agroal.DataSource;
@@ -22,11 +22,16 @@ public class Datasources {
     @DataSource("east")
     AgroalDataSource eastDataSource;
 
+    @Inject
+    @DataSource("west")
+    AgroalDataSource westDataSource;
+
     public Connection getConnection(RegionType region) throws SQLException {
         return switch (region) {
             case NORTH -> northDataSource.getConnection();
             case SOUTH -> southDataSource.getConnection();
             case EAST -> eastDataSource.getConnection();
+            case WEST -> westDataSource.getConnection();
         };
     }
 }

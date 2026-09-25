@@ -38,7 +38,21 @@ services:
       - ./dataaccess-ms-accounts/db/east-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
       - east-data:/var/lib/postgresql/data
 
+  west-db:
+    image: postgres:16-alpine
+    container_name: demo-west-db
+    environment:
+      POSTGRES_DB: west
+      POSTGRES_USER: west_app
+      POSTGRES_PASSWORD: west_app_pw
+    ports:
+      - "55435:5432"
+    volumes:
+      - ./dataaccess-ms-accounts/db/west-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - west-data:/var/lib/postgresql/data
+
 volumes:
   north-data:
   south-data:
   east-data:
+  west-data:

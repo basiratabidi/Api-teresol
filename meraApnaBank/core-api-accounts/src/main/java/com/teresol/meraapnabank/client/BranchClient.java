@@ -1,5 +1,8 @@
-package com.teresol.meraapnabank;
+package com.teresol.meraapnabank.client;
 
+import com.teresol.meraapnabank.dto.BranchDto;
+import com.teresol.meraapnabank.dto.NewBranchRequest;
+import com.teresol.meraapnabank.dto.UpdateBranchRequest;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;

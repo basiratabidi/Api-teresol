@@ -9,8 +9,8 @@ CREATE TABLE branch (
 );
 
 INSERT INTO branch (branch_code, branch_name, city, region_code) VALUES
-    ('SO-001', 'Demo Bank South Main', 'Southville', 'SOUTH'),
-    ('SO-002', 'Demo Bank South Plaza', 'Southville', 'SOUTH');
+    ('WE-001', 'Demo Bank West Main', 'Westville', 'WEST'),
+    ('WE-002', 'Demo Bank West Plaza', 'Westville', 'WEST');
 
 CREATE TABLE account (
     account_id          BIGSERIAL PRIMARY KEY,
@@ -25,5 +25,5 @@ CREATE TABLE account (
 );
 
 INSERT INTO account (account_number, account_holder_name, branch_code, account_type, balance, region_code) VALUES
-    ('SO-AC-0001', 'Sana Malik', 'SO-001', 'SAVINGS', 8700.00, 'SOUTH'),
-    ('SO-AC-0002', 'Usman Tariq', 'SO-002', 'CURRENT', 21000.75, 'SOUTH');
+    ('WE-AC-0001', 'Zara Sheikh', 'WE-001', 'SAVINGS', 9800.00, 'WEST'),
+    ('WE-AC-0002', 'Imran Qureshi', 'WE-002', 'CURRENT', 30250.00, 'WEST');
