@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 220" preserveAspectRatio="xMidYMax slice">
+  <defs>
+    <linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity=".04"/></linearGradient>
+    <pattern id="w" width="14" height="18" patternUnits="userSpaceOnUse"><rect x="3" y="4" width="5" height="7" rx="1" fill="#e8c65a" opacity=".75"/></pattern>
+  </defs>
+  <g fill="url(#b)">
+    <rect x="10" y="120" width="60" height="100"/><rect x="80" y="70" width="48" height="150"/><rect x="138" y="105" width="70" height="115"/>
+    <polygon points="220,220 220,60 262,20 304,60 304,220"/><rect x="314" y="95" width="56" height="125"/><rect x="380" y="40" width="44" height="180"/>
+    <rect x="434" y="110" width="70" height="110"/><rect x="514" y="75" width="52" height="145"/><rect x="576" y="125" width="64" height="95"/>
+    <rect x="650" y="55" width="46" height="165"/><rect x="706" y="100" width="84" height="120"/>
+  </g>
+  <g fill="url(#w)" opacity=".9">
+    <rect x="80" y="70" width="48" height="150"/><rect x="380" y="40" width="44" height="180"/><rect x="514" y="75" width="52" height="145"/><rect x="650" y="55" width="46" height="165"/><rect x="220" y="100" width="84" height="120"/>
+  </g>
+  <path d="M0 205 Q100 190 200 205 T400 205 T600 205 T800 205 V220 H0Z" fill="#c9a227" opacity=".35"/>
+</svg>

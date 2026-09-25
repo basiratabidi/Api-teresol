@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mera Apna Bank</title>
+<style>
+    :root {
+        --primary: #0b5d3b;
+        --primary-dark: #073d27;
+        --primary-light: #e6f2ec;
+        --accent: #c9a227;
+        --bg: #f4f6f5;
+        --card: #ffffff;
+        --border: #dfe5e2;
+        --danger: #b3261e;
+        --danger-light: #fbe9e7;
+        --text: #1b1f1e;
+        --muted: #5c6b66;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+    }
+
+    /* Navbar */
+    nav.topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: linear-gradient(120deg, var(--primary), var(--primary-dark));
+        color: #fff;
+        padding: 0 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 60px;
+    }
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+    }
+    .brand .mark {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-dark);
+        font-weight: 800;
+    }
+    .navlinks {
+        display: flex;
+        gap: 4px;
+    }
+    .navlinks button {
+        background: transparent;
+        border: none;
+        color: rgba(255,255,255,0.85);
+        padding: 9px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.92rem;
+        font-weight: 600;
+    }
+    .navlinks button.active,
+    .navlinks button:hover {
+        background: rgba(255,255,255,0.15);
+        color: #fff;
+    }
+
+    main { max-width: 1100px; margin: 0 auto; padding: 0 16px 60px; }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* Home / hero */
+    .hero {
+        margin: 32px 0 40px;
+        padding: 48px 40px;
+        border-radius: 18px;
+        background: radial-gradient(circle at top right, var(--primary-light), var(--card) 60%);
+        border: 1px solid var(--border);
+    }
+    .hero h1 { margin: 0 0 10px; font-size: 2rem; color: var(--primary-dark); }
+    .hero p { margin: 0 0 24px; color: var(--muted); max-width: 560px; font-size: 1.02rem; }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .btn {
+        padding: 11px 20px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.92rem;
+    }
+    .btn.primary { background: var(--primary); color: #fff; }
+    .btn.primary:hover { background: var(--primary-dark); }
+    .btn.ghost { background: #fff; color: var(--primary-dark); border: 1px solid var(--border); }
+    .btn.ghost:hover { border-color: var(--primary); }
+    .btn.danger { background: var(--danger); color: #fff; }
+    .btn.small { padding: 6px 12px; font-size: 0.8rem; }
+
+    .region-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 40px;
+    }
+    .region-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 20px;
+    }
+    .region-card .region-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--primary-dark);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+    .region-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+    .region-stat { font-size: 1.6rem; font-weight: 800; }
+    .region-stat-label { font-size: 0.78rem; color: var(--muted); }
+
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+        margin-bottom: 20px;
+    }
+    .feature-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 22px;
+    }
+    .feature-card .icon {
+        width: 42px; height: 42px;
+        border-radius: 10px;
+        background: var(--primary-light);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+    }
+    .feature-card h3 { margin: 0 0 6px; font-size: 1rem; }
+    .feature-card p { margin: 0; color: var(--muted); font-size: 0.88rem; line-height: 1.45; }
+
+    h2.section-title { font-size: 1.3rem; margin: 36px 0 14px; color: var(--primary-dark); }
+
+    /* Shared card / form styling for Branches, Accounts, Transactions */
+    .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 18px;
+    }
+    .card h2 { margin-top: 0; font-size: 1.05rem; }
+    .card .hint { color: var(--muted); font-size: 0.8rem; margin: -6px 0 12px; }
+    .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        margin-bottom: 10px;
+    }
+    .row > div {
+        flex: 1 1 150px;
+        min-width: 0;
+    }
+    label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+    input, select {
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 0.9rem;
+        min-width: 140px;
+        background: #f9fbfa;
+        color: var(--text);
+        transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+    input:focus, select:focus {
+        outline: none;
+        border-color: rgba(11, 93, 59, 0.5);
+        box-shadow: 0 0 0 4px rgba(11, 93, 59, 0.08);
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.88rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; }
+    tbody tr { transition: background .2s ease; }
+    tbody tr:hover { background: #f3faf6; }
+    .status { font-size: 0.85rem; margin-top: 8px; min-height: 1.2em; }
+    .status.error { color: var(--danger); }
+    .status.ok { color: var(--primary); }
+
+    .subtabs { display: flex; gap: 8px; margin-bottom: 18px; }
+    .subtabs button {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--muted);
+    }
+    .subtabs button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    footer {
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.8rem;
+        padding: 24px 0 40px;
+    }
+
+    /* Enhanced dashboard polish */
+    body {
+        background:
+            radial-gradient(circle at top left, rgba(201, 162, 39, 0.12), transparent 28%),
+            linear-gradient(180deg, #f5f7f5 0%, #edf4f0 100%);
+    }
+
+    nav.topbar {
+        box-shadow: 0 10px 30px rgba(7, 61, 39, 0.12);
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        backdrop-filter: blur(8px);
+    }
+
+    .brand {
+        letter-spacing: 0.01em;
+    }
+
+    .brand .mark {
+        background: linear-gradient(135deg, #f1d16b, var(--accent));
+        box-shadow: 0 8px 18px rgba(201, 162, 39, 0.38);
+    }
+
+    .navlinks button {
+        transition: all 0.2s ease;
+    }
+
+    .hero {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, rgba(11, 93, 59, 0.96), rgba(7, 61, 39, 0.94));
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 18px 30px rgba(11, 93, 59, 0.14);
+        color: #fff;
+    }
+
+    .hero::before {
+        content: "";
+        position: absolute;
+        inset: -80px -40px auto auto;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+        filter: blur(10px);
+    }
+
+    .hero h1 {
+        color: #fff;
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero p {
+        color: rgba(255,255,255,0.8);
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-actions {
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn {
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        box-shadow: 0 8px 20px rgba(11, 93, 59, 0.12);
+    }
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+    .btn.primary {
+        box-shadow: 0 10px 22px rgba(11, 93, 59, 0.18);
+    }
+    .btn.ghost {
+        background: rgba(255,255,255,0.08);
+        border-color: rgba(255,255,255,0.12);
+        color: #fff;
+    }
+
+    .region-grid {
+        gap: 18px;
+    }
+
+    .region-card {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(16, 76, 61, 0.12);
+        border-radius: 18px;
+        padding: 20px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(244, 248, 246, 0.96));
+        box-shadow: 0 10px 22px rgba(8, 25, 19, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .region-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 34px rgba(8, 25, 19, 0.08);
+    }
+    .region-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto auto 0;
+        width: 100%;
+        height: 4px;
+        background: var(--region-accent, var(--accent));
+    }
+    .region-card--north { --region-accent: #2f8f6a; }
+    .region-card--south { --region-accent: #f29f05; }
+    .region-card--east { --region-accent: #0c7bbf; }
+    .region-card--west { --region-accent: #b75d8d; }
+
+    .region-card .region-name {
+        font-size: 0.92rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+    }
+    .region-card .region-dot {
+        width: 12px; height: 12px; border-radius: 50%;
+        background: var(--region-accent, var(--accent));
+        box-shadow: 0 0 0 5px rgba(201,162,39,0.12);
+    }
+    .region-stat {
+        font-size: clamp(1.7rem, 2vw, 2.1rem);
+        letter-spacing: -0.04em;
+        color: var(--primary-dark);
+    }
+    .region-stat-label {
+        margin-top: 4px;
+        font-size: 0.74rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+
+    .feature-card {
+        background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,250,249,0.96));
+        border: 1px solid rgba(16, 76, 61, 0.12);
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: 0 8px 18px rgba(9, 31, 24, 0.04);
+    }
+    .feature-card .icon {
+        background: linear-gradient(135deg, rgba(11,93,59,0.12), rgba(201,162,39,0.18));
+        border: 1px solid rgba(11,93,59,0.08);
+        color: var(--primary-dark);
+    }
+
+    .card {
+        box-shadow: 0 8px 20px rgba(9, 31, 24, 0.04);
+    }
+
+    .subtabs button {
+        transition: all 0.2s ease;
+    }
+    .subtabs button:hover {
+        border-color: rgba(11,93,59,0.28);
+        color: var(--primary-dark);
+    }
+
+    @media (max-width: 700px) {
+        nav.topbar {
+            height: auto;
+            padding: 14px 16px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .navlinks {
+            width: 100%;
+            flex-wrap: wrap;
+        }
+        .navlinks button {
+            flex: 1 1 40%;
+        }
+        main {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+        .hero {
+            padding: 32px 20px;
+        }
+        .hero h1 {
+            font-size: 1.8rem;
+        }
+        .row > div {
+            flex: 1 1 100%;
+        }
+        input, select, .btn {
+            width: 100%;
+        }
+    }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+    <div class="brand" onclick="switchView('home')">
+        <span class="mark">MB</span>
+        <span>Mera Apna Bank</span>
+    </div>
+    <div class="navlinks">
+        <button id="nav-home" onclick="switchView('home')">Home</button>
+        <button id="nav-branches" onclick="switchView('branches')">Branches</button>
+        <button id="nav-accounts" onclick="switchView('accounts')">Accounts</button>
+        <button id="nav-transactions" onclick="switchView('transactions')">Transactions</button>
+    </div>
+</nav>
+
+<main>
+
+    <!-- HOME -->
+    <section id="view-home" class="view active">
+        <div class="hero">
+            <h1>Banking, routed by region.</h1>
+            <p>Mera Apna Bank runs four independent regional datacenters — North, South, East and West —
+               each with its own database, kept in sync through one core API. Manage branches, open
+               accounts, and move money, all from here.</p>
+            <div class="hero-actions">
+                <button class="btn primary" onclick="switchView('accounts')">Manage Accounts</button>
+                <button class="btn ghost" onclick="switchView('branches')">View Branches</button>
+            </div>
+        </div>
+
+        <h2 class="section-title">Regions at a glance</h2>
+        <div class="region-grid" id="region-grid">
+            <!-- filled by JS -->
+        </div>
+
+        <h2 class="section-title">What you can do here</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="icon">&#127974;</div>
+                <h3>Branch management</h3>
+                <p>Create, update, and close bank branches in any of the four regions.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">&#128179;</div>
+                <h3>Account management</h3>
+                <p>Open savings or current accounts tied to a branch, and edit account details.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">&#128176;</div>
+                <h3>Deposits &amp; withdrawals</h3>
+                <p>Move money in and out of any account, with balance checks enforced server-side.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">&#128257;</div>
+                <h3>Transfers</h3>
+                <p>Send money between two accounts in the same region as one atomic operation.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- BRANCHES -->
+    <section id="view-branches" class="view">
+        <h2 class="section-title">Branches</h2>
+
+        <div class="card">
+            <h2>Load branches by region</h2>
+            <div class="row">
+                <div>
+                    <label>Region</label>
+                    <select id="branch-region">
+                        <option value="north">North</option>
+                        <option value="south">South</option>
+                        <option value="east">East</option>
+                        <option value="west">West</option>
+                    </select>
+                </div>
+                <button class="btn primary" onclick="loadBranches()">Load</button>
+            </div>
+            <div id="branch-status" class="status"></div>
+            <table id="branch-table">
+                <thead>
+                    <tr><th>Code</th><th>Name</th><th>City</th><th>Region</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Create branch</h2>
+            <div class="row">
+                <div><label>Branch code</label><input id="nb-code" placeholder="NO-003"></div>
+                <div><label>Branch name</label><input id="nb-name" placeholder="Demo Bank North Annex"></div>
+                <div><label>City</label><input id="nb-city" placeholder="Northville"></div>
+                <div>
+                    <label>Region</label>
+                    <select id="nb-region">
+                        <option value="NORTH">NORTH</option>
+                        <option value="SOUTH">SOUTH</option>
+                        <option value="EAST">EAST</option>
+                        <option value="WEST">WEST</option>
+                    </select>
+                </div>
+                <button class="btn primary" onclick="createBranch()">Create</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Update / delete branch</h2>
+            <div class="row">
+                <div>
+                    <label>Region</label>
+                    <select id="ub-region">
+                        <option value="north">North</option>
+                        <option value="south">South</option>
+                        <option value="east">East</option>
+                        <option value="west">West</option>
+                    </select>
+                </div>
+                <div><label>Branch code</label><input id="ub-code" placeholder="NO-001"></div>
+                <div><label>New name</label><input id="ub-name" placeholder="Demo Bank North Main"></div>
+                <div><label>New city</label><input id="ub-city" placeholder="Northville"></div>
+                <button class="btn primary" onclick="updateBranch()">Update</button>
+                <button class="btn danger" onclick="deleteBranch()">Delete</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ACCOUNTS -->
+    <section id="view-accounts" class="view">
+        <h2 class="section-title">Accounts</h2>
+
+        <div class="card">
+            <h2>Load accounts by region</h2>
+            <div class="row">
+                <div>
+                    <label>Region</label>
+                    <select id="account-region">
+                        <option value="north">North</option>
+                        <option value="south">South</option>
+                        <option value="east">East</option>
+                        <option value="west">West</option>
+                    </select>
+                </div>
+                <button class="btn primary" onclick="loadAccounts()">Load</button>
+            </div>
+            <div id="account-status" class="status"></div>
+            <table id="account-table">
+                <thead>
+                    <tr><th>Account #</th><th>Holder</th><th>Branch</th><th>Type</th><th>Balance</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Open account</h2>
+            <div class="row">
+                <div><label>Account number</label><input id="na-number" placeholder="NO-AC-0003"></div>
+                <div><label>Holder name</label><input id="na-holder" placeholder="Zainab Iqbal"></div>
+                <div><label>Branch code</label><input id="na-branch" placeholder="NO-001"></div>
+                <div>
+                    <label>Type</label>
+                    <select id="na-type">
+                        <option value="SAVINGS">SAVINGS</option>
+                        <option value="CURRENT">CURRENT</option>
+                    </select>
+                </div>
+                <div><label>Opening balance</label><input id="na-balance" type="number" step="0.01" placeholder="1000.00"></div>
+                <div>
+                    <label>Region</label>
+                    <select id="na-region">
+                        <option value="NORTH">NORTH</option>
+                        <option value="SOUTH">SOUTH</option>
+                        <option value="EAST">EAST</option>
+                        <option value="WEST">WEST</option>
+                    </select>
+                </div>
+                <button class="btn primary" onclick="createAccount()">Create</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Update / close account</h2>
+            <div class="row">
+                <div>
+                    <label>Region</label>
+                    <select id="ua-region">
+                        <option value="north">North</option>
+                        <option value="south">South</option>
+                        <option value="east">East</option>
+                        <option value="west">West</option>
+                    </select>
+                </div>
+                <div><label>Account number</label><input id="ua-number" placeholder="NO-AC-0001"></div>
+                <div><label>Holder name</label><input id="ua-holder" placeholder="Ayesha Khan"></div>
+                <div>
+                    <label>Type</label>
+                    <select id="ua-type">
+                        <option value="SAVINGS">SAVINGS</option>
+                        <option value="CURRENT">CURRENT</option>
+                    </select>
+                </div>
+                <div><label>Balance</label><input id="ua-balance" type="number" step="0.01" placeholder="1000.00"></div>
+                <button class="btn primary" onclick="updateAccount()">Update</button>
+                <button class="btn danger" onclick="deleteAccount()">Close</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRANSACTIONS -->
+    <section id="view-transactions" class="view">
+        <h2 class="section-title">Transactions</h2>
+
+        <div class="subtabs">
+            <button id="subtab-deposit" class="active" onclick="switchTxnTab('deposit')">Deposit</button>
+            <button id="subtab-withdraw" onclick="switchTxnTab('withdraw')">Withdraw</button>
+            <button id="subtab-transfer" onclick="switchTxnTab('transfer')">Transfer</button>
+        </div>
+
+        <div id="txn-deposit" class="card">
+            <h2>Deposit funds</h2>
+            <p class="hint">Adds money to an existing account.</p>
+            <div class="row">
+                <div>
+                    <label>Region</label>
+                    <select id="dep-region">
+                        <option value="north">North</option>
+                        <option value="south">South</option>
+                        <option value="east">East</option>
+                        <option value="west">West</option>
+                    </select>
+                </div>
+                <div><label>Account number</label><input id="dep-account" placeholder="NO-AC-0001"></div>
+                <div><label>Amount</label><input id="dep-amount" type="number" step="0.01" placeholder="500.00"></div>
+                <button class="btn primary" onclick="deposit()">Deposit</button>
+            </div>
+            <div id="deposit-status" class="status"></div>
+        </div>
+
+        <div id="txn-withdraw" class="card" style="display:none;">
+            <h2>Withdraw funds</h2>
+            <p class="hint">Fails if the account doesn't have enough balance.</p>
+            <div class="row">
+                <div>
+                    <label>Region</label>
+                    <select id="wd-region">
+                        <option value="north">North</option>
+                        <option value="south">South</option>
+                        <option value="east">East</option>
+                        <option value="west">West</option>
+                    </select>
+                </div>
+                <div><label>Account number</label><input id="wd-account" placeholder="NO-AC-0001"></div>
+                <div><label>Amount</label><input id="wd-amount" type="number" step="0.01" placeholder="200.00"></div>
+                <button class="btn primary" onclick="withdraw()">Withdraw</button>
+            </div>
+            <div id="withdraw-status" class="status"></div>
+        </div>
+
+        <div id="txn-transfer" class="card" style="display:none;">
+            <h2>Transfer between accounts</h2>
+            <p class="hint">Both accounts must be in the same region &mdash; each region is a separate database.</p>
+            <div class="row">
+                <div>
+                    <label>Region</label>
+                    <select id="tr-region">
+                        <option value="north">North</option>
+                        <option value="south">South</option>
+                        <option value="east">East</option>
+                        <option value="west">West</option>
+                    </select>
+                </div>
+                <div><label>From account</label><input id="tr-from" placeholder="NO-AC-0001"></div>
+                <div><label>To account</label><input id="tr-to" placeholder="NO-AC-0002"></div>
+                <div><label>Amount</label><input id="tr-amount" type="number" step="0.01" placeholder="250.00"></div>
+                <button class="btn primary" onclick="transfer()">Transfer</button>
+            </div>
+            <div id="transfer-status" class="status"></div>
+        </div>
+    </section>
+
+</main>
+
+<footer>Mera Apna Bank &mdash; demo banking API across NORTH / SOUTH / EAST / WEST regions</footer>
+
+<script>
+const api = ""; // same-origin as core-api-accounts
+const REGIONS = ["north", "south", "east", "west"];
+
+function switchView(name) {
+    ["home", "branches", "accounts", "transactions"].forEach(function (v) {
+        document.getElementById('view-' + v).classList.toggle('active', v === name);
+        document.getElementById('nav-' + v).classList.toggle('active', v === name);
+    });
+    if (name === 'branches') loadBranches();
+    if (name === 'accounts') loadAccounts();
+    if (name === 'home') loadRegionStats();
+}
+
+function switchTxnTab(name) {
+    ["deposit", "withdraw", "transfer"].forEach(function (t) {
+        document.getElementById('subtab-' + t).classList.toggle('active', t === name);
+        document.getElementById('txn-' + t).style.display = (t === name) ? 'block' : 'none';
+    });
+}
+
+function setStatus(elementId, message, isError) {
+    const el = document.getElementById(elementId);
+    el.textContent = message;
+    el.className = 'status ' + (isError ? 'error' : 'ok');
+}
+
+async function callApi(path, options) {
+    const response = await fetch(api + path, options);
+    const contentType = response.headers.get('content-type') || '';
+    const body = contentType.includes('application/json') ? await response.json() : await response.text();
+    if (!response.ok) {
+        const message = (body && body.error) ? body.error : (typeof body === 'string' ? body : JSON.stringify(body));
+        throw new Error(message || ('Request failed with status ' + response.status));
+    }
+    return body;
+}
+
+// ---- Home ----
+async function loadRegionStats() {
+    const grid = document.getElementById('region-grid');
+    grid.innerHTML = REGIONS.map(function (r) {
+        return '<div class="region-card region-card--' + r + '"><div class="region-name"><span class="region-dot"></span>'
+            + r.charAt(0).toUpperCase() + r.slice(1) + '</div>'
+            + '<div class="region-stat" id="stat-branches-' + r + '">&hellip;</div>'
+            + '<div class="region-stat-label">branches</div>'
+            + '<div class="region-stat" id="stat-accounts-' + r + '" style="margin-top:8px;">&hellip;</div>'
+            + '<div class="region-stat-label">accounts</div></div>';
+    }).join('');
+
+    for (const r of REGIONS) {
+        try {
+            const branches = await callApi('/branches/' + r);
+            document.getElementById('stat-branches-' + r).textContent = branches.length;
+        } catch (err) {
+            document.getElementById('stat-branches-' + r).textContent = '-';
+        }
+        try {
+            const accounts = await callApi('/accounts/' + r);
+            document.getElementById('stat-accounts-' + r).textContent = accounts.length;
+        } catch (err) {
+            document.getElementById('stat-accounts-' + r).textContent = '-';
+        }
+    }
+}
+
+// ---- Branches ----
+async function loadBranches() {
+    const region = document.getElementById('branch-region').value;
+    try {
+        const branches = await callApi('/branches/' + region);
+        const tbody = document.querySelector('#branch-table tbody');
+        tbody.innerHTML = '';
+        branches.forEach(function (b) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = '<td>' + b.branchCode + '</td><td>' + b.branchName + '</td><td>' + b.city + '</td><td>' + b.regionCode + '</td>';
+            tbody.appendChild(tr);
+        });
+        setStatus('branch-status', branches.length + ' branch(es) loaded.', false);
+    } catch (err) {
+        setStatus('branch-status', err.message, true);
+    }
+}
+
+async function createBranch() {
+    const request = {
+        branchCode: document.getElementById('nb-code').value,
+        branchName: document.getElementById('nb-name').value,
+        city: document.getElementById('nb-city').value,
+        regionCode: document.getElementById('nb-region').value
+    };
+    try {
+        await callApi('/branches', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(request)
+        });
+        setStatus('branch-status', 'Branch ' + request.branchCode + ' created.', false);
+        loadBranches();
+    } catch (err) {
+        setStatus('branch-status', err.message, true);
+    }
+}
+
+async function updateBranch() {
+    const region = document.getElementById('ub-region').value;
+    const code = document.getElementById('ub-code').value;
+    const request = {
+        branchName: document.getElementById('ub-name').value,
+        city: document.getElementById('ub-city').value
+    };
+    try {
+        await callApi('/branches/' + region + '/' + code, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(request)
+        });
+        setStatus('branch-status', 'Branch ' + code + ' updated.', false);
+        loadBranches();
+    } catch (err) {
+        setStatus('branch-status', err.message, true);
+    }
+}
+
+async function deleteBranch() {
+    const region = document.getElementById('ub-region').value;
+    const code = document.getElementById('ub-code').value;
+    if (!confirm('Delete branch ' + code + '? This cannot be undone.')) return;
+    try {
+        await callApi('/branches/' + region + '/' + code, { method: 'DELETE' });
+        setStatus('branch-status', 'Branch ' + code + ' deleted.', false);
+        loadBranches();
+    } catch (err) {
+        setStatus('branch-status', err.message, true);
+    }
+}
+
+// ---- Accounts ----
+async function loadAccounts() {
+    const region = document.getElementById('account-region').value;
+    try {
+        const accounts = await callApi('/accounts/' + region);
+        const tbody = document.querySelector('#account-table tbody');
+        tbody.innerHTML = '';
+        accounts.forEach(function (a) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = '<td>' + a.accountNumber + '</td><td>' + a.accountHolderName + '</td><td>' + a.branchCode
+                + '</td><td>' + a.accountType + '</td><td>' + a.balance + '</td>';
+            tbody.appendChild(tr);
+        });
+        setStatus('account-status', accounts.length + ' account(s) loaded.', false);
+    } catch (err) {
+        setStatus('account-status', err.message, true);
+    }
+}
+
+async function createAccount() {
+    const request = {
+        accountNumber: document.getElementById('na-number').value,
+        accountHolderName: document.getElementById('na-holder').value,
+        branchCode: document.getElementById('na-branch').value,
+        accountType: document.getElementById('na-type').value,
+        balance: parseFloat(document.getElementById('na-balance').value || '0'),
+        regionCode: document.getElementById('na-region').value
+    };
+    try {
+        await callApi('/accounts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(request)
+        });
+        setStatus('account-status', 'Account ' + request.accountNumber + ' opened.', false);
+        loadAccounts();
+    } catch (err) {
+        setStatus('account-status', err.message, true);
+    }
+}
+
+async function updateAccount() {
+    const region = document.getElementById('ua-region').value;
+    const number = document.getElementById('ua-number').value;
+    const request = {
+        accountHolderName: document.getElementById('ua-holder').value,
+        accountType: document.getElementById('ua-type').value,
+        balance: parseFloat(document.getElementById('ua-balance').value || '0')
+    };
+    try {
+        await callApi('/accounts/' + region + '/' + number, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(request)
+        });
+        setStatus('account-status', 'Account ' + number + ' updated.', false);
+        loadAccounts();
+    } catch (err) {
+        setStatus('account-status', err.message, true);
+    }
+}
+
+async function deleteAccount() {
+    const region = document.getElementById('ua-region').value;
+    const number = document.getElementById('ua-number').value;
+    if (!confirm('Close account ' + number + '? This cannot be undone.')) return;
+    try {
+        await callApi('/accounts/' + region + '/' + number, { method: 'DELETE' });
+        setStatus('account-status', 'Account ' + number + ' closed.', false);
+        loadAccounts();
+    } catch (err) {
+        setStatus('account-status', err.message, true);
+    }
+}
+
+// ---- Transactions ----
+async function deposit() {
+    const region = document.getElementById('dep-region').value;
+    const account = document.getElementById('dep-account').value;
+    const amount = parseFloat(document.getElementById('dep-amount').value || '0');
+    try {
+        const result = await callApi('/accounts/' + region + '/' + account + '/deposit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: amount })
+        });
+        setStatus('deposit-status', 'Deposited. New balance: ' + result.balance, false);
+    } catch (err) {
+        setStatus('deposit-status', err.message, true);
+    }
+}
+
+async function withdraw() {
+    const region = document.getElementById('wd-region').value;
+    const account = document.getElementById('wd-account').value;
+    const amount = parseFloat(document.getElementById('wd-amount').value || '0');
+    try {
+        const result = await callApi('/accounts/' + region + '/' + account + '/withdraw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: amount })
+        });
+        setStatus('withdraw-status', 'Withdrawn. New balance: ' + result.balance, false);
+    } catch (err) {
+        setStatus('withdraw-status', err.message, true);
+    }
+}
+
+async function transfer() {
+    const region = document.getElementById('tr-region').value;
+    const request = {
+        fromAccountNumber: document.getElementById('tr-from').value,
+        toAccountNumber: document.getElementById('tr-to').value,
+        amount: parseFloat(document.getElementById('tr-amount').value || '0')
+    };
+    try {
+        await callApi('/accounts/' + region + '/transfer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(request)
+        });
+        setStatus('transfer-status', 'Transferred ' + request.amount + ' from ' + request.fromAccountNumber + ' to ' + request.toAccountNumber + '.', false);
+    } catch (err) {
+        setStatus('transfer-status', err.message, true);
+    }
+}
+
+loadRegionStats();
+</script>
+</body>
+</html>

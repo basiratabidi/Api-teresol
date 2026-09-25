@@ -3,510 +3,527 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mera Apna Bank</title>
+<title>Mera Apna Bank | Digital Banking</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <style>
-    :root {
-        --primary: #0b5d3b;
-        --primary-dark: #073d27;
-        --primary-light: #e6f2ec;
-        --accent: #c9a227;
-        --bg: #f4f6f5;
-        --card: #ffffff;
-        --border: #dfe5e2;
-        --danger: #b3261e;
-        --danger-light: #fbe9e7;
-        --text: #1b1f1e;
-        --muted: #5c6b66;
-    }
-    * { box-sizing: border-box; }
-    body {
-        margin: 0;
-        font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-        background: var(--bg);
-        color: var(--text);
-    }
+:root{
+  --green:#087443;--green-2:#0b5d3b;--green-dark:#06452d;--green-soft:#e9f5ef;
+  --gold:#c9a227;--bg:#f5f7f8;--surface:#fff;--text:#17211d;--muted:#708078;
+  --border:#e3e9e6;--danger:#b3261e;--shadow:0 10px 30px rgba(20,45,35,.07);
+  --radius:16px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Montserrat",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;display:none}
+body.authed .app{display:flex}
+body.authed #auth{display:none}
 
-    /* Navbar */
-    nav.topbar {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background: linear-gradient(120deg, var(--primary), var(--primary-dark));
-        color: #fff;
-        padding: 0 24px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 60px;
-    }
-    .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 700;
-        font-size: 1.1rem;
-        cursor: pointer;
-    }
-    .brand .mark {
-        width: 30px;
-        height: 30px;
-        border-radius: 8px;
-        background: var(--accent);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--primary-dark);
-        font-weight: 800;
-    }
-    .navlinks {
-        display: flex;
-        gap: 4px;
-    }
-    .navlinks button {
-        background: transparent;
-        border: none;
-        color: rgba(255,255,255,0.85);
-        padding: 9px 14px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.92rem;
-        font-weight: 600;
-    }
-    .navlinks button.active,
-    .navlinks button:hover {
-        background: rgba(255,255,255,0.15);
-        color: #fff;
-    }
+/* ---------- Animations ---------- */
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes rise{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes floatYSlow{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-6px) rotate(3deg)}}
+@keyframes shimmer{0%{background-position:-300px 0}100%{background-position:300px 0}}
+@keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(255,255,255,.35)}100%{box-shadow:0 0 0 14px rgba(255,255,255,0)}}
+@keyframes goldPulse{0%{box-shadow:0 0 0 0 rgba(201,162,39,.5)}100%{box-shadow:0 0 0 12px rgba(201,162,39,0)}}
+@keyframes countUpFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
+@keyframes aurora{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,-40px) scale(1.15)}66%{transform:translate(-50px,30px) scale(.92)}}
+@keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes skylineDrift{from{background-position-x:0}to{background-position-x:800px}}
+@keyframes logoShine{0%{transform:translateX(-120%) skewX(-20deg)}60%,100%{transform:translateX(320%) skewX(-20deg)}}
+@keyframes ripple{to{transform:scale(4);opacity:0}}
+@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+@keyframes shakeX{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
 
-    main { max-width: 1100px; margin: 0 auto; padding: 0 16px 60px; }
-    .view { display: none; }
-    .view.active { display: block; }
+.view.active{animation:fadeSlideIn .4s ease both}
+.view.active .stats>*,.view.active .region-grid>*,.view.active .feature-grid>*,.view.active .card,.view.active .trust-strip,.view.active .ticker{
+  animation:rise .65s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0)*75ms)}
+.stat-card,.region-card,.feature-card{transition:transform .2s ease,box-shadow .2s ease}
+.stat-card:hover,.region-card:hover,.feature-card:hover{box-shadow:0 14px 30px rgba(20,45,35,.12)}
+.card{transition:box-shadow .18s ease}
+.tilt{will-change:transform}
+.btn{position:relative;overflow:hidden}
+.btn:active{transform:scale(.97)}
+.btn .rip{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:rgba(255,255,255,.55);pointer-events:none;animation:ripple .6s ease-out forwards}
+.btn.ghost .rip{background:rgba(8,116,67,.25)}
+.status{animation:slideInRight .25s ease both}
+.stat-value,.region-stat{animation:countUpFade .4s ease both}
 
-    /* Home / hero */
-    .hero {
-        margin: 32px 0 40px;
-        padding: 48px 40px;
-        border-radius: 18px;
-        background: radial-gradient(circle at top right, var(--primary-light), var(--card) 60%);
-        border: 1px solid var(--border);
-    }
-    .hero h1 { margin: 0 0 10px; font-size: 2rem; color: var(--primary-dark); }
-    .hero p { margin: 0 0 24px; color: var(--muted); max-width: 560px; font-size: 1.02rem; }
-    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.skeleton{background:linear-gradient(90deg,#eef2f0 25%,#f7faf8 37%,#eef2f0 63%);background-size:400px 100%;animation:shimmer 1.4s ease infinite;border-radius:6px;color:transparent!important}
 
-    .btn {
-        padding: 11px 20px;
-        border-radius: 8px;
-        border: none;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 0.92rem;
-    }
-    .btn.primary { background: var(--primary); color: #fff; }
-    .btn.primary:hover { background: var(--primary-dark); }
-    .btn.ghost { background: #fff; color: var(--primary-dark); border: 1px solid var(--border); }
-    .btn.ghost:hover { border-color: var(--primary); }
-    .btn.danger { background: var(--danger); color: #fff; }
-    .btn.small { padding: 6px 12px; font-size: 0.8rem; }
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
-    .region-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 16px;
-        margin-bottom: 40px;
-    }
-    .region-card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 20px;
-    }
-    .region-card .region-name {
-        font-weight: 700;
-        font-size: 1rem;
-        color: var(--primary-dark);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 10px;
-    }
-    .region-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
-    .region-stat { font-size: 1.6rem; font-weight: 800; }
-    .region-stat-label { font-size: 0.78rem; color: var(--muted); }
+/* ---------- Auth screen ---------- */
+#auth{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;overflow:auto;background:radial-gradient(circle at 20% 15%,#0f7a4c 0%,#073d27 45%,#031f14 100%)}
+#auth-canvas,#hero-canvas{display:block}
+#auth-canvas{position:fixed;inset:0;width:100%;height:100%}
+.blob{position:fixed;border-radius:50%;filter:blur(70px);opacity:.45;animation:aurora 14s ease-in-out infinite;pointer-events:none}
+.blob.b1{width:380px;height:380px;background:#15935e;left:-100px;top:-80px}
+.blob.b2{width:320px;height:320px;background:#c9a227;right:-80px;bottom:-60px;animation-delay:-5s;opacity:.3}
+.blob.b3{width:260px;height:260px;background:#0e6b46;left:45%;top:55%;animation-delay:-9s}
+.skyline{position:absolute;left:0;right:0;bottom:0;height:150px;background:url(assets/skyline.svg) repeat-x bottom/800px 100%;animation:skylineDrift 60s linear infinite;opacity:.9;pointer-events:none}
+.auth-shell{position:relative;z-index:2;width:100%;max-width:920px;display:grid;grid-template-columns:1fr 1fr;border-radius:26px;overflow:hidden;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 30px 80px rgba(0,0,0,.4);animation:rise .8s cubic-bezier(.2,.7,.2,1) both}
+.auth-side{position:relative;padding:40px 36px 150px;color:#fff;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.auth-side>*{position:relative;z-index:2}
+.auth-side .logo{width:104px;height:104px;border-radius:24px;background:#fff;padding:6px;margin-bottom:22px;box-shadow:0 12px 30px rgba(0,0,0,.25);animation:floatYSlow 4s ease-in-out infinite;overflow:hidden}
+.auth-side .logo img{width:100%;height:100%;object-fit:contain}
+.auth-side .logo:after,.brand-mark:after{content:"";position:absolute;top:0;bottom:0;left:0;width:30%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);animation:logoShine 3.6s ease-in-out infinite}
+.auth-side h1{font-size:1.75rem;line-height:1.2;margin:0 0 12px;font-weight:800;letter-spacing:-.02em}
+.auth-side p{margin:0;font-size:.82rem;line-height:1.7;color:rgba(255,255,255,.75)}
+.auth-side ul{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:9px;font-size:.76rem;color:rgba(255,255,255,.88)}
+.auth-side li:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);margin-right:10px;animation:goldPulse 2s ease infinite}
+.auth-side .float-card{position:absolute;z-index:1;right:-30px;bottom:70px;width:210px;filter:drop-shadow(0 18px 24px rgba(0,0,0,.35));animation:floatY 5s ease-in-out infinite;transform:rotate(-8deg)}
+.auth-side .skyline{z-index:0}
+.auth-card{background:#fff;padding:34px 36px;display:flex;flex-direction:column;justify-content:center}
+.auth-card .card-logo{display:block;width:118px;height:auto;margin:-8px auto 4px;animation:fadeSlideIn .8s ease both}
+.auth-card h2{margin:0 0 4px;font-size:1.3rem;font-weight:800;text-align:center}
+.auth-card .sub{margin:0 0 18px;color:var(--muted);font-size:.78rem;text-align:center}
+.auth-tabs{display:flex;background:#eaf0ed;border-radius:11px;padding:4px;margin-bottom:18px}
+.auth-tabs button{flex:1;padding:9px;border:0;border-radius:8px;background:transparent;color:var(--muted);font-weight:700;font-size:.78rem;transition:.2s}
+.auth-tabs button.active{background:#fff;color:var(--green-dark);box-shadow:0 2px 7px rgba(20,45,35,.1)}
+.auth-card form{display:grid;gap:14px}
+.auth-card form>div{animation:fadeSlideIn .35s ease both}
+.auth-card input{width:100%;padding:12px 13px;font-size:.82rem}
+.auth-card .btn{width:100%;padding:13px;font-size:.85rem;background:var(--green);color:#fff;margin-top:4px}
+.auth-card .btn:hover{background:var(--green-2)}
+.auth-card .btn[disabled]{opacity:.6;cursor:wait}
+.auth-card .status{margin-top:12px;text-align:center}
+.auth-card.shake{animation:shakeX .4s ease}
+.pw-wrap{position:relative}.pw-wrap input{padding-right:58px}
+.pw-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--green);font-weight:700;font-size:.7rem;padding:6px}
+.logout-btn{margin-top:14px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:9px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-weight:700;font-size:.75rem;transition:background .15s}
+.logout-btn:hover{background:rgba(255,255,255,.18)}
+.logout-btn svg{width:15px;height:15px}
 
-    .feature-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 18px;
-        margin-bottom: 20px;
-    }
-    .feature-card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 22px;
-    }
-    .feature-card .icon {
-        width: 42px; height: 42px;
-        border-radius: 10px;
-        background: var(--primary-light);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.2rem;
-        margin-bottom: 12px;
-    }
-    .feature-card h3 { margin: 0 0 6px; font-size: 1rem; }
-    .feature-card p { margin: 0; color: var(--muted); font-size: 0.88rem; line-height: 1.45; }
+/* ---------- Sidebar ---------- */
+.sidebar{width:250px;background:linear-gradient(180deg,#073d27 0%,#0b5d3b 100%);color:#fff;padding:22px 16px;position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;z-index:30;overflow:hidden}
+.sidebar:after{content:"";position:absolute;left:0;right:0;bottom:0;height:130px;background:url(assets/skyline.svg) repeat-x bottom/520px 100%;opacity:.5;pointer-events:none;animation:skylineDrift 90s linear infinite}
+.sidebar>*{position:relative;z-index:1}
+.brand{display:flex;align-items:center;gap:11px;padding:7px 9px 26px;font-weight:800;font-size:1.08rem;cursor:pointer}
+.brand-mark{width:44px;height:44px;border-radius:12px;background:#fff;display:grid;place-items:center;box-shadow:0 4px 12px rgba(0,0,0,.12);overflow:hidden;padding:3px;position:relative;flex-shrink:0}
+.brand-mark img{width:100%;height:100%;object-fit:contain}
+.brand small{display:block;font-weight:500;font-size:.68rem;opacity:.65;margin-top:2px}
+.nav-label{text-transform:uppercase;font-size:.66rem;letter-spacing:.12em;opacity:.48;padding:14px 12px 7px}
+.navlinks{display:grid;gap:5px}
+.navlinks button{width:100%;display:flex;align-items:center;gap:12px;background:transparent;border:0;color:rgba(255,255,255,.72);padding:12px;border-radius:11px;text-align:left;font-weight:600;font-size:.88rem;transition:background .15s ease,color .15s ease,transform .15s ease}
+.navlinks button:hover{transform:translateX(4px)}
+.navlinks button:hover,.navlinks button.active{background:rgba(255,255,255,.13);color:#fff}
+.navlinks button.active svg{transform:scale(1.1)}
+.nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-icon svg{width:19px;height:19px;transition:transform .15s ease}
+.sidebar-bottom{margin-top:auto;border-top:1px solid rgba(255,255,255,.12);padding:15px 8px 3px}
+.profile{display:flex;gap:10px;align-items:center}
+.avatar{width:34px;height:34px;border-radius:50%;background:#fff;color:var(--green-dark);display:grid;place-items:center;font-weight:800;font-size:.8rem;animation:pulseRing 2.4s ease infinite;flex-shrink:0}
+.profile strong{font-size:.82rem}.profile span{display:block;font-size:.68rem;opacity:.58;margin-top:2px;overflow:hidden;text-overflow:ellipsis;max-width:130px}
 
-    h2.section-title { font-size: 1.3rem; margin: 36px 0 14px; color: var(--primary-dark); }
+/* ---------- Content ---------- */
+.content{margin-left:250px;width:calc(100% - 250px);min-width:0}
+.topbar{height:72px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 34px;position:sticky;top:0;z-index:20}
+.page-title{font-size:1.05rem;font-weight:700}.breadcrumb{font-size:.72rem;color:var(--muted);margin-top:2px}
+.top-actions{display:flex;align-items:center;gap:12px}
+.icon-btn{width:38px;height:38px;border:1px solid var(--border);border-radius:10px;background:#fff;display:grid;place-items:center;color:#52615b;transition:transform .15s ease,border-color .15s ease}
+.icon-btn:hover{transform:translateY(-1px);border-color:#a9c7b8}
+.icon-btn:hover svg{animation:wiggle .4s ease}
+.icon-btn svg{width:17px;height:17px}
+main{max-width:1320px;margin:0 auto;padding:30px 34px 55px}
+.view{display:none}.view.active{display:block}
 
-    /* Shared card / form styling for Branches, Accounts, Transactions */
-    .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 18px;
-    }
-    .card h2 { margin-top: 0; font-size: 1.05rem; }
-    .card .hint { color: var(--muted); font-size: 0.8rem; margin: -6px 0 12px; }
-    .row {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        align-items: flex-end;
-        margin-bottom: 10px;
-    }
-    label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
-    input, select {
-        padding: 8px 10px;
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        font-size: 0.9rem;
-        min-width: 140px;
-    }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.88rem; }
-    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
-    th { color: var(--muted); font-weight: 600; }
-    tr:hover { background: #f8faf9; }
-    .status { font-size: 0.85rem; margin-top: 8px; min-height: 1.2em; }
-    .status.error { color: var(--danger); }
-    .status.ok { color: var(--primary); }
+/* ---------- Hero ---------- */
+.hero{border-radius:22px;padding:30px 32px;background:linear-gradient(120deg,#0b5d3b,#087443,#15935e,#0b5d3b);background-size:300% 300%;animation:gradientShift 12s ease infinite;color:#fff;display:flex;justify-content:space-between;gap:25px;align-items:center;box-shadow:var(--shadow);overflow:hidden;position:relative}
+.hero:after{content:"";position:absolute;width:280px;height:280px;border:1px solid rgba(255,255,255,.12);border-radius:50%;right:-70px;top:-115px;box-shadow:0 0 0 45px rgba(255,255,255,.025),0 0 0 90px rgba(255,255,255,.018)}
+.hero .skyline{height:110px;opacity:.5}
+.hero-copy{position:relative;z-index:2;max-width:560px}
+.hero-eyebrow{font-size:.68rem;text-transform:uppercase;letter-spacing:.13em;color:rgba(255,255,255,.62);margin-bottom:8px}
+.hero h1{font-size:1.75rem;margin:0 0 7px;letter-spacing:-.02em;font-weight:800}.hero p{margin:0;color:rgba(255,255,255,.75);font-size:.86rem;line-height:1.7}
+.hero-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:19px;position:relative;z-index:2}
+.btn{border:0;border-radius:10px;padding:10px 16px;font-weight:700;font-size:.82rem;transition:.15s}
+.btn.primary{background:#fff;color:var(--green-dark)}.btn.primary:hover{filter:brightness(.94)}
+.btn.ghost{background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.2);color:#fff}
+.btn.danger{background:var(--danger);color:#fff}.btn.small{padding:7px 11px;font-size:.74rem}
+.card .btn.primary,.page-head .btn.primary{background:var(--green);color:#fff}
+.card .btn.ghost,.page-head .btn.ghost{background:#fff;border:1px solid var(--border);color:var(--green-dark)}
 
-    .subtabs { display: flex; gap: 8px; margin-bottom: 18px; }
-    .subtabs button {
-        padding: 8px 14px;
-        border-radius: 999px;
-        border: 1px solid var(--border);
-        background: var(--card);
-        cursor: pointer;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--muted);
-    }
-    .subtabs button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.hero-art{position:relative;z-index:2;width:300px;height:220px;flex-shrink:0}
+#hero-canvas{position:absolute;inset:0;width:100%;height:100%}
+.hero-card{position:absolute;left:-14px;bottom:-4px;width:170px;transform:rotate(-9deg);filter:drop-shadow(0 14px 18px rgba(0,0,0,.35));animation:floatY 4.5s ease-in-out infinite}
 
-    footer {
-        text-align: center;
-        color: var(--muted);
-        font-size: 0.8rem;
-        padding: 24px 0 40px;
-    }
+.ticker{margin-top:14px;border-radius:14px;background:#fff;border:1px solid var(--border);overflow:hidden;padding:11px 0;white-space:nowrap}
+.ticker-track{display:inline-flex;gap:38px;animation:marquee 26s linear infinite;padding-left:38px}
+.ticker:hover .ticker-track{animation-play-state:paused}
+.ticker span{font-size:.72rem;font-weight:700;color:var(--green-2);letter-spacing:.08em;display:inline-flex;align-items:center;gap:9px}
+.ticker span:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);animation:goldPulse 2s ease infinite}
+
+.section-title{font-size:1rem;margin:28px 0 13px;font-weight:700}
+
+.trust-strip{margin-top:15px;border-radius:16px;overflow:hidden;position:relative;background:linear-gradient(120deg,#0b5d3b,#0e6b46 55%,#127a51);padding:22px 26px;color:#fff;display:flex;align-items:center;gap:18px}
+.trust-strip img{width:58px;height:66px;flex-shrink:0;animation:floatYSlow 3.4s ease-in-out infinite}
+.trust-strip strong{font-size:.95rem}.trust-strip span{display:block;font-size:.72rem;color:rgba(255,255,255,.78);margin-top:4px;line-height:1.6}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px}
+.stat-card,.card,.feature-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 3px 15px rgba(20,45,35,.025)}
+.stat-card{padding:17px 18px;position:relative}.stat-label{color:var(--muted);font-size:.73rem}.stat-value{font-size:1.45rem;font-weight:800;margin-top:7px}.stat-meta{font-size:.68rem;color:#4f7c66;margin-top:4px}
+.stat-icon{position:absolute;right:16px;top:16px;width:34px;height:34px;border-radius:10px;background:var(--green-soft);display:grid;place-items:center}
+.stat-icon svg{width:16px;height:16px;color:var(--green)}
+.stat-card:hover .stat-icon{animation:wiggle .5s ease}
+
+.region-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.region-card{padding:17px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);position:relative;overflow:hidden}
+.region-card:before{content:"";position:absolute;left:0;right:0;bottom:0;height:60px;background:url(assets/skyline.svg) center bottom/cover no-repeat;filter:invert(.3) sepia(1) hue-rotate(95deg) saturate(3);opacity:.08}
+.region-name{font-weight:700;font-size:.85rem;display:flex;align-items:center;gap:8px}
+.region-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:goldPulse 2s ease infinite}
+.region-stat{font-size:1.28rem;font-weight:800;margin-top:16px}.region-stat-label{font-size:.68rem;color:var(--muted)}
+
+.feature-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.feature-card{padding:18px;cursor:pointer}
+.feature-card .icon{width:38px;height:38px;border-radius:10px;background:var(--green-soft);display:grid;place-items:center;margin-bottom:13px;transition:transform .25s ease,background .25s ease}
+.feature-card:hover .icon{transform:rotate(-8deg) scale(1.12);background:var(--green)}
+.feature-card:hover .icon svg{color:#fff}
+.feature-card .icon svg{width:18px;height:18px;color:var(--green);transition:color .25s}
+.feature-card h3{font-size:.86rem;margin:0 0 6px}.feature-card p{font-size:.74rem;line-height:1.55;color:var(--muted);margin:0}
+
+.card{padding:20px;margin-bottom:15px}
+.card h2{font-size:.95rem;margin:0 0 4px}.card .hint{color:var(--muted);font-size:.72rem;margin:0 0 14px}
+.row{display:flex;gap:11px;flex-wrap:wrap;align-items:flex-end;margin-bottom:9px}
+label{display:block;font-size:.68rem;color:var(--muted);margin:0 0 5px;font-weight:600}
+input,select{padding:10px 11px;border:1px solid var(--border);border-radius:9px;background:#fff;min-width:145px;font-size:.78rem;color:var(--text);outline:none;transition:border-color .15s ease,box-shadow .15s ease}
+input:focus,select:focus{border-color:#6ba88c;box-shadow:0 0 0 3px rgba(8,116,67,.1)}
+
+table{width:100%;border-collapse:separate;border-spacing:0;margin-top:13px;font-size:.76rem;overflow:hidden}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--border)}
+th{font-size:.68rem;color:var(--muted);font-weight:700;background:#f8faf9}
+tbody tr{transition:background .12s ease}
+tbody tr:hover{background:#f1f8f4}tbody tr:last-child td{border-bottom:0}
+.status{font-size:.73rem;margin-top:8px;min-height:1.1em}.status.error{color:var(--danger)}.status.ok{color:var(--green)}
+
+.subtabs{display:flex;gap:6px;background:#eaf0ed;border-radius:11px;padding:4px;width:max-content;margin-bottom:14px}
+.subtabs button{padding:8px 15px;border:0;border-radius:8px;background:transparent;color:var(--muted);font-size:.75rem;font-weight:700;transition:background .15s ease,color .15s ease}
+.subtabs button.active{background:#fff;color:var(--green-dark);box-shadow:0 2px 7px rgba(20,45,35,.08)}
+
+.page-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:18px}
+.page-head h1{font-size:1.45rem;margin:0;font-weight:800}.page-head p{font-size:.75rem;color:var(--muted);margin:5px 0 0}
+.page-head img{height:74px;width:auto;animation:floatY 4.5s ease-in-out infinite}
+.page-head img.tint{filter:invert(.3) sepia(1) hue-rotate(95deg) saturate(3);opacity:.35;height:60px}
+
+footer{color:var(--muted);font-size:.68rem;padding:18px 0 0;border-top:1px solid var(--border);margin-top:28px}
+
+@media(max-width:1050px){.stats,.region-grid{grid-template-columns:repeat(2,1fr)}.feature-grid{grid-template-columns:repeat(2,1fr)}.hero-art{width:230px}}
+@media(max-width:760px){
+  .auth-shell{grid-template-columns:1fr}.auth-side{display:none}.auth-card{padding:30px 24px}
+  .sidebar{width:76px;padding:18px 10px}
+  .brand{padding:7px 7px 25px}
+  .brand-text,.nav-label,.navlinks button span:not(.nav-icon),.profile-text,.logout-btn span{display:none}
+  .navlinks button{justify-content:center;padding:12px}
+  .sidebar-bottom{padding-left:0;padding-right:0}.profile{justify-content:center}
+  .content{margin-left:76px;width:calc(100% - 76px)}
+  .topbar{padding:0 18px}
+  main{padding:22px 17px 40px}
+  .hero{padding:23px;display:block}
+  .hero-art{display:none}
+  .hero-actions{margin-top:18px}
+  .trust-strip{flex-direction:column;text-align:center}
+  .stats,.region-grid,.feature-grid{grid-template-columns:1fr 1fr}
+  .card{padding:15px;overflow-x:auto}
+  .row{align-items:stretch}.row>div{flex:1 1 180px}
+  input,select{width:100%}
+  .page-head img{display:none}
+}
+@media(max-width:480px){
+  .stats,.region-grid,.feature-grid{grid-template-columns:1fr}
+  .hero h1{font-size:1.35rem}
+  .page-head h1{font-size:1.2rem}
+  .topbar{height:62px}.page-title{font-size:.9rem}
+}
 </style>
 </head>
 <body>
+<div id="auth">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <canvas id="auth-canvas"></canvas>
+  <div class="auth-shell">
+    <div class="auth-side">
+      <div class="skyline" aria-hidden="true"></div>
+      <img class="float-card" src="assets/card.svg" alt="" aria-hidden="true">
+      <div class="logo"><img src="assets/logo.png" alt="Mera Apna Bank logo"></div>
+      <h1>Banking you can trust, everywhere.</h1>
+      <p>Sign in to manage branches, accounts and transactions across the North, South, East and West regional networks.</p>
+      <ul><li>Salted PBKDF2 password hashing</li><li>Signed, expiring session tokens</li><li>Every banking API request authenticated</li></ul>
+    </div>
+    <div class="auth-card">
+      <img class="card-logo" src="assets/logo.png" alt="Mera Apna Bank">
+      <h2 id="auth-heading">Welcome back</h2>
+      <p class="sub" id="auth-sub">Sign in to your Mera Apna Bank workspace.</p>
+      <div class="auth-tabs">
+        <button id="tab-login" class="active" type="button" onclick="setAuthMode('login')">Log in</button>
+        <button id="tab-signup" type="button" onclick="setAuthMode('signup')">Sign up</button>
+      </div>
+      <form id="auth-form" onsubmit="submitAuth(event)" novalidate>
+        <div id="fld-name" style="display:none"><label for="au-name">Full name</label><input id="au-name" autocomplete="name" placeholder="Ayesha Khan"></div>
+        <div><label for="au-email">Email</label><input id="au-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+        <div><label for="au-password">Password</label>
+          <div class="pw-wrap"><input id="au-password" type="password" autocomplete="current-password" placeholder="At least 8 characters"><button type="button" class="pw-toggle" onclick="togglePw()">Show</button></div></div>
+        <div id="fld-confirm" style="display:none"><label for="au-confirm">Confirm password</label><input id="au-confirm" type="password" autocomplete="new-password" placeholder="Repeat password"></div>
+        <button id="auth-submit" class="btn" type="submit">Log in</button>
+      </form>
+      <div id="auth-status" class="status"></div>
+    </div>
+  </div>
+</div>
 
-<nav class="topbar">
-    <div class="brand" onclick="switchView('home')">
-        <span class="mark">MB</span>
-        <span>Mera Apna Bank</span>
-    </div>
-    <div class="navlinks">
-        <button id="nav-home" onclick="switchView('home')">Home</button>
-        <button id="nav-branches" onclick="switchView('branches')">Branches</button>
-        <button id="nav-accounts" onclick="switchView('accounts')">Accounts</button>
-        <button id="nav-transactions" onclick="switchView('transactions')">Transactions</button>
-    </div>
-</nav>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand" onclick="switchView('home')">
+     <div class="brand-mark"><img src="assets/logo.png" alt="Mera Apna Bank logo"></div>
+  <div class="brand-text">Mera Apna Bank<small>trust us , we're reliable</small></div>
+  </div>
+  <div class="nav-label">Workspace</div>
+  <div class="navlinks">
+    <button id="nav-home" class="active" onclick="switchView('home')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg></span>
+      <span>Dashboard</span>
+    </button>
+    <button id="nav-branches" onclick="switchView('branches')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/><path d="M9 12h.01M15 12h.01M9 8h.01M15 8h.01"/></svg></span>
+      <span>Branches</span>
+    </button>
+    <button id="nav-accounts" onclick="switchView('accounts')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16" cy="14" r="1.4"/></svg></span>
+      <span>Accounts</span>
+    </button>
+    <button id="nav-transactions" onclick="switchView('transactions')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></span>
+      <span>Transactions</span>
+    </button>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="profile"><div class="avatar" id="user-initials">MA</div><div class="profile-text"><strong id="user-name">Bank Admin</strong><span id="user-email">Operations</span></div></div>
+    <button class="logout-btn" onclick="logout()" title="Log out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Log out</span></button>
+  </div>
+</aside>
+
+<div class="content">
+<header class="topbar">
+  <div><div class="page-title" id="top-title">Dashboard</div><div class="breadcrumb">Mera Apna Bank / Digital banking platform</div></div>
+  <div class="top-actions">
+    <button class="icon-btn" title="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+    <button class="icon-btn" title="Profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></button>
+  </div>
+</header>
 
 <main>
 
-    <!-- HOME -->
-    <section id="view-home" class="view active">
-        <div class="hero">
-            <h1>Banking, routed by region.</h1>
-            <p>Mera Apna Bank runs four independent regional datacenters — North, South, East and West —
-               each with its own database, kept in sync through one core API. Manage branches, open
-               accounts, and move money, all from here.</p>
-            <div class="hero-actions">
-                <button class="btn primary" onclick="switchView('accounts')">Manage Accounts</button>
-                <button class="btn ghost" onclick="switchView('branches')">View Branches</button>
-            </div>
-        </div>
+<section id="view-home" class="view active">
+  <div class="hero">
+    <div class="skyline" aria-hidden="true"></div>
+    <div class="hero-copy">
+      <div class="hero-eyebrow">Mera Apna Bank &middot; Secure Banking</div>
+      <h1 id="hero-greeting">Good day.</h1>
+      <p>Manage branches, customer accounts and everyday banking transactions across four regional
+         datacenters &mdash; North, South, East and West &mdash; each backed by its own database.</p>
+      <div class="hero-actions">
+        <button class="btn primary" onclick="switchView('accounts')">Manage accounts</button>
+        <button class="btn ghost" onclick="switchView('transactions')">New transaction</button>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true"><canvas id="hero-canvas"></canvas><img class="hero-card" src="assets/card.svg" alt=""></div>
+  </div>
 
-        <h2 class="section-title">Regions at a glance</h2>
-        <div class="region-grid" id="region-grid">
-            <!-- filled by JS -->
-        </div>
+  <div class="ticker" aria-hidden="true"><div class="ticker-track" id="ticker-track"></div></div>
 
-        <h2 class="section-title">What you can do here</h2>
-        <div class="feature-grid">
-            <div class="feature-card">
-                <div class="icon">&#127974;</div>
-                <h3>Branch management</h3>
-                <p>Create, update, and close bank branches in any of the four regions.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">&#128179;</div>
-                <h3>Account management</h3>
-                <p>Open savings or current accounts tied to a branch, and edit account details.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">&#128176;</div>
-                <h3>Deposits &amp; withdrawals</h3>
-                <p>Move money in and out of any account, with balance checks enforced server-side.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">&#128257;</div>
-                <h3>Transfers</h3>
-                <p>Send money between two accounts in the same region as one atomic operation.</p>
-            </div>
-        </div>
-    </section>
+  <h2 class="section-title">Overview</h2>
+  <div class="stats">
+    <div class="stat-card tilt"><div class="stat-label">Active regions</div><div class="stat-value">4</div><div class="stat-meta">North &middot; South &middot; East &middot; West</div><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg></div></div>
+    <div class="stat-card tilt"><div class="stat-label">Regional databases</div><div class="stat-value">4</div><div class="stat-meta">Connected to core API</div><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg></div></div>
+    <div class="stat-card tilt"><div class="stat-label">Platform status</div><div class="stat-value" style="font-size:1.1rem">Operational</div><div class="stat-meta">API services available</div><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div></div>
+    <div class="stat-card tilt"><div class="stat-label">Ledger currency</div><div class="stat-value">PKR</div><div class="stat-meta">Pakistani Rupee</div><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div>
+  </div>
 
-    <!-- BRANCHES -->
-    <section id="view-branches" class="view">
-        <h2 class="section-title">Branches</h2>
+  <h2 class="section-title">Regional network</h2>
+  <div class="region-grid" id="region-grid"></div>
 
-        <div class="card">
-            <h2>Load branches by region</h2>
-            <div class="row">
-                <div>
-                    <label>Region</label>
-                    <select id="branch-region">
-                        <option value="north">North</option>
-                        <option value="south">South</option>
-                        <option value="east">East</option>
-                        <option value="west">West</option>
-                    </select>
-                </div>
-                <button class="btn primary" onclick="loadBranches()">Load</button>
-            </div>
-            <div id="branch-status" class="status"></div>
-            <table id="branch-table">
-                <thead>
-                    <tr><th>Code</th><th>Name</th><th>City</th><th>Region</th></tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+  <div class="trust-strip">
+    <img src="assets/shield.svg" alt="" aria-hidden="true">
+    <div><strong>Region-routed by design</strong><span>Every branch and account is tied to one of four regional databases, kept separate end-to-end for data isolation.</span></div>
+  </div>
 
-        <div class="card">
-            <h2>Create branch</h2>
-            <div class="row">
-                <div><label>Branch code</label><input id="nb-code" placeholder="NO-003"></div>
-                <div><label>Branch name</label><input id="nb-name" placeholder="Demo Bank North Annex"></div>
-                <div><label>City</label><input id="nb-city" placeholder="Northville"></div>
-                <div>
-                    <label>Region</label>
-                    <select id="nb-region">
-                        <option value="NORTH">NORTH</option>
-                        <option value="SOUTH">SOUTH</option>
-                        <option value="EAST">EAST</option>
-                        <option value="WEST">WEST</option>
-                    </select>
-                </div>
-                <button class="btn primary" onclick="createBranch()">Create</button>
-            </div>
-        </div>
+  <h2 class="section-title">Quick access</h2>
+  <div class="feature-grid">
+    <div class="feature-card tilt" onclick="switchView('branches')"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></svg></div><h3>Branch management</h3><p>Create, update, view, and close branches across the four regions.</p></div>
+    <div class="feature-card tilt" onclick="switchView('accounts')"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16" cy="14" r="1.4"/></svg></div><h3>Account management</h3><p>Open accounts, update customer details, and manage account balances.</p></div>
+    <div class="feature-card tilt" onclick="switchView('transactions')"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><h3>Deposits &amp; withdrawals</h3><p>Process account deposits and withdrawals with server-side balance checks.</p></div>
+    <div class="feature-card tilt" onclick="switchView('transactions');switchTxnTab('transfer')"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div><h3>Transfers</h3><p>Transfer funds between accounts within the same regional database.</p></div>
+  </div>
+</section>
 
-        <div class="card">
-            <h2>Update / delete branch</h2>
-            <div class="row">
-                <div>
-                    <label>Region</label>
-                    <select id="ub-region">
-                        <option value="north">North</option>
-                        <option value="south">South</option>
-                        <option value="east">East</option>
-                        <option value="west">West</option>
-                    </select>
-                </div>
-                <div><label>Branch code</label><input id="ub-code" placeholder="NO-001"></div>
-                <div><label>New name</label><input id="ub-name" placeholder="Demo Bank North Main"></div>
-                <div><label>New city</label><input id="ub-city" placeholder="Northville"></div>
-                <button class="btn primary" onclick="updateBranch()">Update</button>
-                <button class="btn danger" onclick="deleteBranch()">Delete</button>
-            </div>
-        </div>
-    </section>
+<section id="view-branches" class="view">
+  <div class="page-head"><div><h1>Branches</h1><p>Manage branches across the regional banking network.</p></div><img class="tint" src="assets/skyline.svg" alt="" aria-hidden="true"></div>
 
-    <!-- ACCOUNTS -->
-    <section id="view-accounts" class="view">
-        <h2 class="section-title">Accounts</h2>
+  <div class="card">
+    <h2>Regional branches</h2>
+    <p class="hint">Select a region to retrieve its current branch directory.</p>
+    <div class="row">
+      <div><label>Region</label><select id="branch-region"><option value="north">North</option><option value="south">South</option><option value="east">East</option><option value="west">West</option></select></div>
+      <button class="btn primary" onclick="loadBranches()">Load branches</button>
+    </div>
+    <div id="branch-status" class="status"></div>
+    <table id="branch-table"><thead><tr><th>Code</th><th>Name</th><th>City</th><th>Region</th></tr></thead><tbody></tbody></table>
+  </div>
 
-        <div class="card">
-            <h2>Load accounts by region</h2>
-            <div class="row">
-                <div>
-                    <label>Region</label>
-                    <select id="account-region">
-                        <option value="north">North</option>
-                        <option value="south">South</option>
-                        <option value="east">East</option>
-                        <option value="west">West</option>
-                    </select>
-                </div>
-                <button class="btn primary" onclick="loadAccounts()">Load</button>
-            </div>
-            <div id="account-status" class="status"></div>
-            <table id="account-table">
-                <thead>
-                    <tr><th>Account #</th><th>Holder</th><th>Branch</th><th>Type</th><th>Balance</th></tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+  <div class="card">
+    <h2>Create branch</h2>
+    <p class="hint">Register a new branch in a regional database. Branch code must match the region's prefix (NO- / SO- / EA- / WE-).</p>
+    <div class="row">
+      <div><label>Branch code</label><input id="nb-code" placeholder="NO-003"></div>
+      <div><label>Branch name</label><input id="nb-name" placeholder="North Main Branch"></div>
+      <div><label>City</label><input id="nb-city" placeholder="Islamabad"></div>
+      <div><label>Region</label><select id="nb-region"><option value="NORTH">NORTH</option><option value="SOUTH">SOUTH</option><option value="EAST">EAST</option><option value="WEST">WEST</option></select></div>
+      <button class="btn primary" onclick="createBranch()">Create branch</button>
+    </div>
+  </div>
 
-        <div class="card">
-            <h2>Open account</h2>
-            <div class="row">
-                <div><label>Account number</label><input id="na-number" placeholder="NO-AC-0003"></div>
-                <div><label>Holder name</label><input id="na-holder" placeholder="Zainab Iqbal"></div>
-                <div><label>Branch code</label><input id="na-branch" placeholder="NO-001"></div>
-                <div>
-                    <label>Type</label>
-                    <select id="na-type">
-                        <option value="SAVINGS">SAVINGS</option>
-                        <option value="CURRENT">CURRENT</option>
-                    </select>
-                </div>
-                <div><label>Opening balance</label><input id="na-balance" type="number" step="0.01" placeholder="1000.00"></div>
-                <div>
-                    <label>Region</label>
-                    <select id="na-region">
-                        <option value="NORTH">NORTH</option>
-                        <option value="SOUTH">SOUTH</option>
-                        <option value="EAST">EAST</option>
-                        <option value="WEST">WEST</option>
-                    </select>
-                </div>
-                <button class="btn primary" onclick="createAccount()">Create</button>
-            </div>
-        </div>
+  <div class="card">
+    <h2>Update or delete branch</h2>
+    <p class="hint">Use the branch code to modify or remove an existing branch.</p>
+    <div class="row">
+      <div><label>Region</label><select id="ub-region"><option value="north">North</option><option value="south">South</option><option value="east">East</option><option value="west">West</option></select></div>
+      <div><label>Branch code</label><input id="ub-code" placeholder="NO-001"></div>
+      <div><label>New name</label><input id="ub-name" placeholder="North Main Branch"></div>
+      <div><label>New city</label><input id="ub-city" placeholder="Islamabad"></div>
+      <button class="btn primary" onclick="updateBranch()">Update</button>
+      <button class="btn danger" onclick="deleteBranch()">Delete</button>
+    </div>
+  </div>
+</section>
 
-        <div class="card">
-            <h2>Update / close account</h2>
-            <div class="row">
-                <div>
-                    <label>Region</label>
-                    <select id="ua-region">
-                        <option value="north">North</option>
-                        <option value="south">South</option>
-                        <option value="east">East</option>
-                        <option value="west">West</option>
-                    </select>
-                </div>
-                <div><label>Account number</label><input id="ua-number" placeholder="NO-AC-0001"></div>
-                <div><label>Holder name</label><input id="ua-holder" placeholder="Ayesha Khan"></div>
-                <div>
-                    <label>Type</label>
-                    <select id="ua-type">
-                        <option value="SAVINGS">SAVINGS</option>
-                        <option value="CURRENT">CURRENT</option>
-                    </select>
-                </div>
-                <div><label>Balance</label><input id="ua-balance" type="number" step="0.01" placeholder="1000.00"></div>
-                <button class="btn primary" onclick="updateAccount()">Update</button>
-                <button class="btn danger" onclick="deleteAccount()">Close</button>
-            </div>
-        </div>
-    </section>
+<section id="view-accounts" class="view">
+  <div class="page-head"><div><h1>Accounts</h1><p>View and manage customer accounts by region.</p></div><img src="assets/card.svg" alt="" aria-hidden="true"></div>
 
-    <!-- TRANSACTIONS -->
-    <section id="view-transactions" class="view">
-        <h2 class="section-title">Transactions</h2>
+  <div class="card">
+    <h2>Account directory</h2>
+    <p class="hint">Retrieve accounts from the selected regional database.</p>
+    <div class="row">
+      <div><label>Region</label><select id="account-region"><option value="north">North</option><option value="south">South</option><option value="east">East</option><option value="west">West</option></select></div>
+      <button class="btn primary" onclick="loadAccounts()">Load accounts</button>
+    </div>
+    <div id="account-status" class="status"></div>
+    <table id="account-table"><thead><tr><th>Account #</th><th>Holder</th><th>Branch</th><th>Type</th><th>Balance</th></tr></thead><tbody></tbody></table>
+  </div>
 
-        <div class="subtabs">
-            <button id="subtab-deposit" class="active" onclick="switchTxnTab('deposit')">Deposit</button>
-            <button id="subtab-withdraw" onclick="switchTxnTab('withdraw')">Withdraw</button>
-            <button id="subtab-transfer" onclick="switchTxnTab('transfer')">Transfer</button>
-        </div>
+  <div class="card">
+    <h2>Open account</h2>
+    <p class="hint">Create a new savings or current account. Account number must match the region's prefix.</p>
+    <div class="row">
+      <div><label>Account number</label><input id="na-number" placeholder="NO-AC-0003"></div>
+      <div><label>Holder name</label><input id="na-holder" placeholder="Zainab Iqbal"></div>
+      <div><label>Branch code</label><input id="na-branch" placeholder="NO-001"></div>
+      <div><label>Type</label><select id="na-type"><option value="SAVINGS">SAVINGS</option><option value="CURRENT">CURRENT</option></select></div>
+      <div><label>Opening balance</label><input id="na-balance" type="number" step="0.01" placeholder="1000.00"></div>
+      <div><label>Region</label><select id="na-region"><option value="NORTH">NORTH</option><option value="SOUTH">SOUTH</option><option value="EAST">EAST</option><option value="WEST">WEST</option></select></div>
+      <button class="btn primary" onclick="createAccount()">Open account</button>
+    </div>
+  </div>
 
-        <div id="txn-deposit" class="card">
-            <h2>Deposit funds</h2>
-            <p class="hint">Adds money to an existing account.</p>
-            <div class="row">
-                <div>
-                    <label>Region</label>
-                    <select id="dep-region">
-                        <option value="north">North</option>
-                        <option value="south">South</option>
-                        <option value="east">East</option>
-                        <option value="west">West</option>
-                    </select>
-                </div>
-                <div><label>Account number</label><input id="dep-account" placeholder="NO-AC-0001"></div>
-                <div><label>Amount</label><input id="dep-amount" type="number" step="0.01" placeholder="500.00"></div>
-                <button class="btn primary" onclick="deposit()">Deposit</button>
-            </div>
-            <div id="deposit-status" class="status"></div>
-        </div>
+  <div class="card">
+    <h2>Update or close account</h2>
+    <p class="hint">Modify account details or close an existing account.</p>
+    <div class="row">
+      <div><label>Region</label><select id="ua-region"><option value="north">North</option><option value="south">South</option><option value="east">East</option><option value="west">West</option></select></div>
+      <div><label>Account number</label><input id="ua-number" placeholder="NO-AC-0001"></div>
+      <div><label>Holder name</label><input id="ua-holder" placeholder="Ayesha Khan"></div>
+      <div><label>Type</label><select id="ua-type"><option value="SAVINGS">SAVINGS</option><option value="CURRENT">CURRENT</option></select></div>
+      <div><label>Balance</label><input id="ua-balance" type="number" step="0.01" placeholder="1000.00"></div>
+      <button class="btn primary" onclick="updateAccount()">Update</button>
+      <button class="btn danger" onclick="deleteAccount()">Close account</button>
+    </div>
+  </div>
+</section>
 
-        <div id="txn-withdraw" class="card" style="display:none;">
-            <h2>Withdraw funds</h2>
-            <p class="hint">Fails if the account doesn't have enough balance.</p>
-            <div class="row">
-                <div>
-                    <label>Region</label>
-                    <select id="wd-region">
-                        <option value="north">North</option>
-                        <option value="south">South</option>
-                        <option value="east">East</option>
-                        <option value="west">West</option>
-                    </select>
-                </div>
-                <div><label>Account number</label><input id="wd-account" placeholder="NO-AC-0001"></div>
-                <div><label>Amount</label><input id="wd-amount" type="number" step="0.01" placeholder="200.00"></div>
-                <button class="btn primary" onclick="withdraw()">Withdraw</button>
-            </div>
-            <div id="withdraw-status" class="status"></div>
-        </div>
+<section id="view-transactions" class="view">
+  <div class="page-head"><div><h1>Transactions</h1><p>Process deposits, withdrawals, and regional transfers.</p></div><img src="assets/shield.svg" alt="" aria-hidden="true"></div>
 
-        <div id="txn-transfer" class="card" style="display:none;">
-            <h2>Transfer between accounts</h2>
-            <p class="hint">Both accounts must be in the same region &mdash; each region is a separate database.</p>
-            <div class="row">
-                <div>
-                    <label>Region</label>
-                    <select id="tr-region">
-                        <option value="north">North</option>
-                        <option value="south">South</option>
-                        <option value="east">East</option>
-                        <option value="west">West</option>
-                    </select>
-                </div>
-                <div><label>From account</label><input id="tr-from" placeholder="NO-AC-0001"></div>
-                <div><label>To account</label><input id="tr-to" placeholder="NO-AC-0002"></div>
-                <div><label>Amount</label><input id="tr-amount" type="number" step="0.01" placeholder="250.00"></div>
-                <button class="btn primary" onclick="transfer()">Transfer</button>
-            </div>
-            <div id="transfer-status" class="status"></div>
-        </div>
-    </section>
+  <div class="subtabs">
+    <button id="subtab-deposit" class="active" onclick="switchTxnTab('deposit')">Deposit</button>
+    <button id="subtab-withdraw" onclick="switchTxnTab('withdraw')">Withdraw</button>
+    <button id="subtab-transfer" onclick="switchTxnTab('transfer')">Transfer</button>
+  </div>
 
+  <div id="txn-deposit" class="card">
+    <h2>Deposit funds</h2>
+    <p class="hint">Add funds to an existing account.</p>
+    <div class="row">
+      <div><label>Region</label><select id="dep-region"><option value="north">North</option><option value="south">South</option><option value="east">East</option><option value="west">West</option></select></div>
+      <div><label>Account number</label><input id="dep-account" placeholder="NO-AC-0001"></div>
+      <div><label>Amount (PKR)</label><input id="dep-amount" type="number" step="0.01" placeholder="500.00"></div>
+      <button class="btn primary" onclick="deposit()">Deposit funds</button>
+    </div>
+    <div id="deposit-status" class="status"></div>
+  </div>
+
+  <div id="txn-withdraw" class="card" style="display:none;">
+    <h2>Withdraw funds</h2>
+    <p class="hint">Withdraw funds from an account. Insufficient balances are rejected by the server.</p>
+    <div class="row">
+      <div><label>Region</label><select id="wd-region"><option value="north">North</option><option value="south">South</option><option value="east">East</option><option value="west">West</option></select></div>
+      <div><label>Account number</label><input id="wd-account" placeholder="NO-AC-0001"></div>
+      <div><label>Amount (PKR)</label><input id="wd-amount" type="number" step="0.01" placeholder="200.00"></div>
+      <button class="btn primary" onclick="withdraw()">Withdraw funds</button>
+    </div>
+    <div id="withdraw-status" class="status"></div>
+  </div>
+
+  <div id="txn-transfer" class="card" style="display:none;">
+    <h2>Transfer between accounts</h2>
+    <p class="hint">Both accounts must be within the same region because each region uses a separate database.</p>
+    <div class="row">
+      <div><label>Region</label><select id="tr-region"><option value="north">North</option><option value="south">South</option><option value="east">East</option><option value="west">West</option></select></div>
+      <div><label>From account</label><input id="tr-from" placeholder="NO-AC-0001"></div>
+      <div><label>To account</label><input id="tr-to" placeholder="NO-AC-0002"></div>
+      <div><label>Amount (PKR)</label><input id="tr-amount" type="number" step="0.01" placeholder="250.00"></div>
+      <button class="btn primary" onclick="transfer()">Transfer funds</button>
+    </div>
+    <div id="transfer-status" class="status"></div>
+  </div>
+</section>
+
+<footer>Mera Apna Bank &middot; Regional banking administration interface &middot; NORTH / SOUTH / EAST / WEST &middot; Demo interface</footer>
 </main>
-
-<footer>Mera Apna Bank &mdash; demo banking API across NORTH / SOUTH / EAST / WEST regions</footer>
+</div>
+</div>
 
 <script>
 const api = ""; // same-origin as core-api-accounts
 const REGIONS = ["north", "south", "east", "west"];
 
+function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+}
+
+// stagger the entrance animation of a view's cards/grids
+function stagger(root) {
+    root.querySelectorAll('.stats>*,.region-grid>*,.feature-grid>*,.card,.ticker,.trust-strip').forEach(function (el, i) {
+        el.style.setProperty('--i', i);
+    });
+}
+
 function switchView(name) {
     ["home", "branches", "accounts", "transactions"].forEach(function (v) {
-        document.getElementById('view-' + v).classList.toggle('active', v === name);
+        const view = document.getElementById('view-' + v);
+        view.classList.toggle('active', v === name);
         document.getElementById('nav-' + v).classList.toggle('active', v === name);
+        if (v === name) stagger(view);
     });
+    const titles = { home: "Dashboard", branches: "Branches", accounts: "Accounts", transactions: "Transactions" };
+    document.getElementById('top-title').textContent = titles[name] || "Dashboard";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     if (name === 'branches') loadBranches();
     if (name === 'accounts') loadAccounts();
     if (name === 'home') loadRegionStats();
@@ -523,10 +540,22 @@ function setStatus(elementId, message, isError) {
     const el = document.getElementById(elementId);
     el.textContent = message;
     el.className = 'status ' + (isError ? 'error' : 'ok');
+    // restart the slide-in animation on every update
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = '';
 }
 
 async function callApi(path, options) {
+    options = options || {};
+    options.headers = Object.assign({}, options.headers);
+    const token = getToken();
+    if (token) options.headers['Authorization'] = 'Bearer ' + token;
     const response = await fetch(api + path, options);
+    if (response.status === 401 && !path.startsWith('/auth/login') && !path.startsWith('/auth/signup')) {
+        logout('Your session has expired. Please sign in again.');
+        throw new Error('Please sign in to continue.');
+    }
     const contentType = response.headers.get('content-type') || '';
     const body = contentType.includes('application/json') ? await response.json() : await response.text();
     if (!response.ok) {
@@ -536,30 +565,47 @@ async function callApi(path, options) {
     return body;
 }
 
+function animateNumber(el, target) {
+    const duration = 700;
+    const start = performance.now();
+    function tick(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        el.textContent = Math.round((1 - Math.pow(1 - progress, 3)) * target);
+        if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+}
+
 // ---- Home ----
 async function loadRegionStats() {
     const grid = document.getElementById('region-grid');
-    grid.innerHTML = REGIONS.map(function (r) {
-        return '<div class="region-card"><div class="region-name"><span class="region-dot"></span>'
+    grid.innerHTML = REGIONS.map(function (r, i) {
+        return '<div class="region-card tilt" style="--i:' + i + '"><div class="region-name"><span class="region-dot"></span>'
             + r.charAt(0).toUpperCase() + r.slice(1) + '</div>'
-            + '<div class="region-stat" id="stat-branches-' + r + '">&hellip;</div>'
+            + '<div class="region-stat skeleton" id="stat-branches-' + r + '">00</div>'
             + '<div class="region-stat-label">branches</div>'
-            + '<div class="region-stat" id="stat-accounts-' + r + '" style="margin-top:8px;">&hellip;</div>'
+            + '<div class="region-stat skeleton" id="stat-accounts-' + r + '" style="margin-top:8px;">00</div>'
             + '<div class="region-stat-label">accounts</div></div>';
     }).join('');
 
     for (const r of REGIONS) {
+        const branchEl = document.getElementById('stat-branches-' + r);
+        const accountEl = document.getElementById('stat-accounts-' + r);
         try {
             const branches = await callApi('/branches/' + r);
-            document.getElementById('stat-branches-' + r).textContent = branches.length;
+            branchEl.classList.remove('skeleton');
+            animateNumber(branchEl, branches.length);
         } catch (err) {
-            document.getElementById('stat-branches-' + r).textContent = '-';
+            branchEl.classList.remove('skeleton');
+            branchEl.textContent = '-';
         }
         try {
             const accounts = await callApi('/accounts/' + r);
-            document.getElementById('stat-accounts-' + r).textContent = accounts.length;
+            accountEl.classList.remove('skeleton');
+            animateNumber(accountEl, accounts.length);
         } catch (err) {
-            document.getElementById('stat-accounts-' + r).textContent = '-';
+            accountEl.classList.remove('skeleton');
+            accountEl.textContent = '-';
         }
     }
 }
@@ -571,9 +617,11 @@ async function loadBranches() {
         const branches = await callApi('/branches/' + region);
         const tbody = document.querySelector('#branch-table tbody');
         tbody.innerHTML = '';
-        branches.forEach(function (b) {
+        branches.forEach(function (b, i) {
             const tr = document.createElement('tr');
-            tr.innerHTML = '<td>' + b.branchCode + '</td><td>' + b.branchName + '</td><td>' + b.city + '</td><td>' + b.regionCode + '</td>';
+            tr.style.animation = 'fadeSlideIn .3s ease both';
+            tr.style.animationDelay = (i * 30) + 'ms';
+            tr.innerHTML = '<td>' + esc(b.branchCode) + '</td><td>' + esc(b.branchName) + '</td><td>' + esc(b.city) + '</td><td>' + esc(b.regionCode) + '</td>';
             tbody.appendChild(tr);
         });
         setStatus('branch-status', branches.length + ' branch(es) loaded.', false);
@@ -642,10 +690,12 @@ async function loadAccounts() {
         const accounts = await callApi('/accounts/' + region);
         const tbody = document.querySelector('#account-table tbody');
         tbody.innerHTML = '';
-        accounts.forEach(function (a) {
+        accounts.forEach(function (a, i) {
             const tr = document.createElement('tr');
-            tr.innerHTML = '<td>' + a.accountNumber + '</td><td>' + a.accountHolderName + '</td><td>' + a.branchCode
-                + '</td><td>' + a.accountType + '</td><td>' + a.balance + '</td>';
+            tr.style.animation = 'fadeSlideIn .3s ease both';
+            tr.style.animationDelay = (i * 30) + 'ms';
+            tr.innerHTML = '<td>' + esc(a.accountNumber) + '</td><td>' + esc(a.accountHolderName) + '</td><td>' + esc(a.branchCode)
+                + '</td><td>' + esc(a.accountType) + '</td><td>' + esc(a.balance) + '</td>';
             tbody.appendChild(tr);
         });
         setStatus('account-status', accounts.length + ' account(s) loaded.', false);
@@ -762,7 +812,263 @@ async function transfer() {
     }
 }
 
-loadRegionStats();
+// ---- Auth ----
+let memoryToken = null;
+const TOKEN_KEY = 'mab.token', USER_KEY = 'mab.user';
+let authMode = 'login';
+
+function getToken() { try { return localStorage.getItem(TOKEN_KEY) || memoryToken; } catch (e) { return memoryToken; } }
+
+function setAuthMode(mode) {
+    authMode = mode;
+    const signup = mode === 'signup';
+    document.getElementById('tab-login').classList.toggle('active', !signup);
+    document.getElementById('tab-signup').classList.toggle('active', signup);
+    ['fld-name', 'fld-confirm'].forEach(function (id) {
+        document.getElementById(id).style.display = signup ? 'block' : 'none';
+    });
+    document.getElementById('auth-heading').textContent = signup ? 'Create your account' : 'Welcome back';
+    document.getElementById('auth-sub').textContent = signup ? 'Join Mera Apna Bank in less than a minute.' : 'Sign in to your Mera Apna Bank workspace.';
+    document.getElementById('auth-submit').textContent = signup ? 'Create account' : 'Log in';
+    document.getElementById('au-password').autocomplete = signup ? 'new-password' : 'current-password';
+    document.getElementById('auth-status').textContent = '';
+}
+
+function togglePw() {
+    const input = document.getElementById('au-password');
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    document.querySelector('.pw-toggle').textContent = show ? 'Hide' : 'Show';
+}
+
+function shakeCard() {
+    const card = document.querySelector('.auth-card');
+    card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+}
+
+async function submitAuth(event) {
+    event.preventDefault();
+    const email = document.getElementById('au-email').value.trim();
+    const password = document.getElementById('au-password').value;
+    const btn = document.getElementById('auth-submit');
+    let body = { email: email, password: password };
+    if (authMode === 'signup') {
+        if (password !== document.getElementById('au-confirm').value) {
+            shakeCard();
+            return setStatus('auth-status', 'Passwords do not match.', true);
+        }
+        body.fullName = document.getElementById('au-name').value;
+    }
+    btn.disabled = true;
+    try {
+        const session = await callApi('/auth/' + authMode, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        try {
+            localStorage.setItem(TOKEN_KEY, session.token);
+            localStorage.setItem(USER_KEY, JSON.stringify(session.user));
+        } catch (e) { /* storage unavailable: session lasts until reload */ }
+        enterApp(session.user, session.token);
+    } catch (err) {
+        shakeCard();
+        setStatus('auth-status', err.message, true);
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+function enterApp(user, token) {
+    memoryToken = token;
+    document.getElementById('au-password').value = '';
+    document.getElementById('au-confirm').value = '';
+    const name = user.fullName || 'Bank Admin';
+    document.getElementById('user-name').textContent = name;
+    document.getElementById('user-email').textContent = user.email;
+    document.getElementById('user-initials').textContent = name.split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+    document.getElementById('hero-greeting').textContent = 'Good day, ' + name.split(' ')[0] + '.';
+    document.body.classList.add('authed');
+    scenes.auth.pause(); scenes.hero.resume();
+    switchView('home');
+}
+
+function logout(message) {
+    try { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); } catch (e) { /* ignore */ }
+    memoryToken = null;
+    document.body.classList.remove('authed');
+    scenes.hero.pause(); scenes.auth.resume();
+    setAuthMode('login');
+    if (typeof message === 'string') setStatus('auth-status', message, true);
+}
+
+// ---- Micro-interactions: button ripple + 3D card tilt ----
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.btn');
+    if (!btn) return;
+    const r = btn.getBoundingClientRect();
+    const dot = document.createElement('span');
+    dot.className = 'rip';
+    dot.style.left = (e.clientX - r.left) + 'px';
+    dot.style.top = (e.clientY - r.top) + 'px';
+    btn.appendChild(dot);
+    setTimeout(function () { dot.remove(); }, 600);
+});
+
+(function tilt() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    document.addEventListener('pointermove', function (e) {
+        const el = e.target.closest && e.target.closest('.tilt');
+        document.querySelectorAll('.tilt.tilting').forEach(function (t) {
+            if (t !== el) { t.classList.remove('tilting'); t.style.transform = ''; }
+        });
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+        el.classList.add('tilting');
+        el.style.transform = 'perspective(700px) rotateX(' + (-y * 9) + 'deg) rotateY(' + (x * 9) + 'deg) translateY(-3px)';
+    });
+})();
+
+// ticker content (duplicated so the loop is seamless)
+(function ticker() {
+    const items = ['NORTH REGION', 'SOUTH REGION', 'EAST REGION', 'WEST REGION', 'PKR LEDGER', 'SECURE SIGN-IN', 'REGION-ROUTED DATA', "TRUST US - WE'RE RELIABLE"];
+    const html = items.map(function (t) { return '<span>' + t + '</span>'; }).join('');
+    document.getElementById('ticker-track').innerHTML = html + html;
+})();
+
+// ---- 3D scenes (Three.js) ----
+function coinTexture() {
+    const c = document.createElement('canvas'); c.width = c.height = 256;
+    const g = c.getContext('2d');
+    const grad = g.createRadialGradient(128, 128, 20, 128, 128, 128);
+    grad.addColorStop(0, '#f3d76b'); grad.addColorStop(1, '#c9a227');
+    g.fillStyle = grad; g.fillRect(0, 0, 256, 256);
+    g.strokeStyle = 'rgba(120,85,10,.7)'; g.lineWidth = 8;
+    g.beginPath(); g.arc(128, 128, 116, 0, Math.PI * 2); g.stroke();
+    const t = new THREE.CanvasTexture(c); t.anisotropy = 4;
+    // stamp the bank logo on the coin face once it has loaded
+    const img = new Image();
+    img.onload = function () {
+        g.fillStyle = '#fffaf0'; g.beginPath(); g.arc(128, 128, 100, 0, Math.PI * 2); g.fill();
+        g.drawImage(img, 20, 20, 216, 216);
+        t.needsUpdate = true;
+    };
+    img.src = 'assets/logo.png';
+    return t;
+}
+
+function makeCoin(radius, tex) {
+    const side = new THREE.MeshStandardMaterial({ color: 0xc9a227, metalness: .9, roughness: .3 });
+    const face = new THREE.MeshStandardMaterial({ map: tex, metalness: .5, roughness: .4 });
+    const coin = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, radius * .16, 48), [side, face, face]);
+    coin.rotation.x = Math.PI / 2;
+    const holder = new THREE.Group(); holder.add(coin);
+    return holder;
+}
+
+function createScene(canvas, opts) {
+    const noop = { pause: function () {}, resume: function () {} };
+    if (!window.THREE) return noop;
+    let renderer;
+    try { renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true }); }
+    catch (e) { return noop; }   // no WebGL: the page still works, just without 3D
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, .1, 100);
+    camera.position.set(0, 0, opts.camZ);
+    scene.add(new THREE.AmbientLight(0xffffff, .9));
+    const key = new THREE.DirectionalLight(0xffffff, 2); key.position.set(3, 4, 5); scene.add(key);
+    const rim = new THREE.PointLight(0x7dffc4, 40, 30); rim.position.set(-4, -2, 3); scene.add(rim);
+
+    const tex = coinTexture();
+    const spinners = [];
+    opts.coins.forEach(function (d) {
+        const coin = makeCoin(d.r, tex);
+        coin.position.set(d.x, d.y, d.z || 0);
+        coin.userData = { baseY: d.y, speed: d.s, phase: d.p || 0, tilt: d.tilt || 0 };
+        scene.add(coin); spinners.push(coin);
+    });
+    let ring = null, shell = null;
+    if (opts.rings) {
+        ring = new THREE.Mesh(new THREE.TorusGeometry(2.6, .03, 12, 100), new THREE.MeshBasicMaterial({ color: 0x9fe8c4, transparent: true, opacity: .4 }));
+        ring.rotation.x = 1.2; scene.add(ring);
+        shell = new THREE.Mesh(new THREE.IcosahedronGeometry(3.6, 1), new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: .08 }));
+        scene.add(shell);
+    }
+    // drifting gold sparkles
+    let points = null;
+    if (opts.sparkles) {
+        const pos = new Float32Array(opts.sparkles * 3);
+        for (let i = 0; i < opts.sparkles; i++) {
+            pos[i * 3] = (Math.random() - .5) * opts.camZ * 1.8;
+            pos[i * 3 + 1] = (Math.random() - .5) * opts.camZ;
+            pos[i * 3 + 2] = (Math.random() - .5) * 6;
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        points = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xf3d76b, size: .06, transparent: true, opacity: .8 }));
+        scene.add(points);
+    }
+    let mx = 0, my = 0;
+    window.addEventListener('pointermove', function (e) {
+        mx = (e.clientX / window.innerWidth - .5); my = (e.clientY / window.innerHeight - .5);
+    });
+
+    function resize() {
+        const w = canvas.clientWidth, h = canvas.clientHeight;
+        if (!w || !h) return;
+        renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    }
+    window.addEventListener('resize', resize);
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let running = false, raf = 0;
+    function frame(ms) {
+        const t = ms / 1000;
+        spinners.forEach(function (c) {
+            const u = c.userData;
+            c.rotation.y = reduce ? .6 : t * u.speed + u.phase;
+            c.rotation.x = u.tilt + Math.sin(t * .8 + u.phase) * .15;
+            c.position.y = u.baseY + (reduce ? 0 : Math.sin(t * 1.2 + u.phase) * .25);
+        });
+        if (ring) { ring.rotation.z = t * .2; shell.rotation.y = t * .06; shell.rotation.x = t * .04; }
+        if (points && !reduce) { points.rotation.y = t * .04; points.position.y = Math.sin(t * .5) * .3; }
+        camera.position.x += (mx * 1.6 - camera.position.x) * .04;
+        camera.position.y += (-my * 1.2 - camera.position.y) * .04;
+        camera.lookAt(0, 0, 0);
+        renderer.render(scene, camera);
+        if (running) raf = requestAnimationFrame(frame);
+    }
+    return {
+        resume: function () { if (running) return; running = true; resize(); raf = requestAnimationFrame(frame); },
+        pause: function () { running = false; cancelAnimationFrame(raf); }
+    };
+}
+
+const scenes = {
+    auth: createScene(document.getElementById('auth-canvas'), {
+        camZ: 11, rings: true, sparkles: 90,
+        coins: [
+            { r: 1.5, x: -6, y: 1.5, s: .9, p: 0, tilt: .3 }, { r: 1, x: 6.2, y: -1.8, s: 1.2, p: 1.5, tilt: -.2 },
+            { r: .7, x: 4.5, y: 3.4, s: 1.5, p: 3, tilt: .4 }, { r: .9, x: -4.2, y: -3.2, s: 1.1, p: 4.5, tilt: -.3 },
+            { r: .5, x: 7.8, y: 2.6, s: 1.8, p: 2, tilt: .2 }
+        ]
+    }),
+    hero: createScene(document.getElementById('hero-canvas'), {
+        camZ: 6.5, sparkles: 25,
+        coins: [{ r: 1.3, x: .7, y: .2, s: 1, p: 0, tilt: .25 }, { r: .5, x: -.6, y: 1.5, s: 1.6, p: 2, tilt: .3 }, { r: .35, x: 2.3, y: -1.2, s: 1.9, p: 4, tilt: -.3 }]
+    })
+};
+
+(function boot() {
+    setAuthMode('login');
+    scenes.auth.resume();
+    const token = getToken();
+    if (!token) return;
+    callApi('/auth/me').then(function (user) { enterApp(user, token); })
+        .catch(function () { logout(); });
+})();
 </script>
 </body>
 </html>
