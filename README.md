@@ -39,13 +39,16 @@ cross-region querying.
 
 ## Documentation
 
+- [docs/quick-guide.md](docs/quick-guide.md) — get started fast: run it, sign in, everyday tasks, troubleshooting
+- [docs/SRS.md](docs/SRS.md) — Software Requirements Specification (numbered requirements, use cases, traceability)
+- [docs/SDS.md](docs/SDS.md) — Software Design Specification (architecture, diagrams, data model, security)
 - [docs/authentication.md](docs/authentication.md) — how signup, login, tokens and route protection work, and how to harden them
 - [docs/frontend.md](docs/frontend.md) — the web UI: structure, fonts, 3D scenes, animations, assets, validation
 - [meraApnaBank/core-api-accounts/README.md](meraApnaBank/core-api-accounts/README.md) — building and running the core API
 
 ## Prerequisites
 
-- JDK 21
+- JDK 17 or newer
 - Maven (or the bundled `./mvnw` wrapper in each module)
 - Docker + Docker Compose
 
