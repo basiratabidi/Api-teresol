@@ -1,10 +1,5 @@
-package com.teresol.meraapnabank.resource;
+package com.teresol.meraapnabank;
 
-import com.teresol.meraapnabank.datasource.Datasources;
-import com.teresol.meraapnabank.datasource.RegionType;
-import com.teresol.meraapnabank.dto.BranchDto;
-import com.teresol.meraapnabank.dto.NewBranchRequest;
-import com.teresol.meraapnabank.dto.UpdateBranchRequest;
 import com.teresol.meraapnabank.util.QueryBuilder;
 import com.teresol.meraapnabank.util.Selection;
 import com.teresol.meraapnabank.util.Tables;
@@ -71,6 +66,8 @@ public class BranchResource {
         validate(request);
 
         RegionType regionType = RegionType.parse(request.regionCode);
+        validateCodePrefix(request.branchCode, regionType);
+
         List<Selection> values = List.of(
                 new Selection("branch_code", request.branchCode),
                 new Selection("branch_name", request.branchName),
@@ -189,6 +186,14 @@ public class BranchResource {
         }
         if (request.regionCode == null || request.regionCode.isBlank()) {
             throw new BadRequestException("regionCode is required");
+        }
+    }
+
+    private void validateCodePrefix(String branchCode, RegionType regionType) {
+        String requiredPrefix = regionType.codePrefix() + "-";
+        if (!branchCode.toUpperCase().startsWith(requiredPrefix)) {
+            throw new BadRequestException(
+                    "branchCode for region " + regionType.name() + " must start with '" + requiredPrefix + "'");
         }
     }
 }

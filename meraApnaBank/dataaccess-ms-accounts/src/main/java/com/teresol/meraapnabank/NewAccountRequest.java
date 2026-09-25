@@ -1,8 +1,8 @@
-package com.teresol.meraapnabank.dto;
+package com.teresol.meraapnabank;
 
 import java.math.BigDecimal;
 
-public class AccountDto {
+public class NewAccountRequest {
     public String accountNumber;
     public String accountHolderName;
     public String branchCode;

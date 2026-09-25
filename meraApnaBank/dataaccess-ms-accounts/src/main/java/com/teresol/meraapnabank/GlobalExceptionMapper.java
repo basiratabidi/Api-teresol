@@ -1,4 +1,4 @@
-package com.teresol.meraapnabank.exception;
+package com.teresol.meraapnabank;
 
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;

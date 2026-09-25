@@ -1,4 +1,4 @@
-package com.teresol.meraapnabank.datasource;
+package com.teresol.meraapnabank;
 
 import jakarta.ws.rs.BadRequestException;
 
@@ -18,5 +18,14 @@ public enum RegionType {
             throw new BadRequestException(
                     "Unknown region '" + value + "'. Valid regions: NORTH, SOUTH, EAST, WEST");
         }
+    }
+
+    public String codePrefix() {
+        return switch (this) {
+            case NORTH -> "NO";
+            case SOUTH -> "SO";
+            case EAST -> "EA";
+            case WEST -> "WE";
+        };
     }
 }

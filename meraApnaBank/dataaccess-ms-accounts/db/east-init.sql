@@ -16,7 +16,7 @@ CREATE TABLE account (
     account_id          BIGSERIAL PRIMARY KEY,
     account_number      VARCHAR(20) NOT NULL UNIQUE,
     account_holder_name VARCHAR(100) NOT NULL,
-    branch_code         VARCHAR(20) NOT NULL REFERENCES branch(branch_code),
+    branch_code         VARCHAR(20) NOT NULL,
     account_type        VARCHAR(20) NOT NULL,
     balance             NUMERIC(18,2) NOT NULL DEFAULT 0,
     region_code         VARCHAR(10) NOT NULL,

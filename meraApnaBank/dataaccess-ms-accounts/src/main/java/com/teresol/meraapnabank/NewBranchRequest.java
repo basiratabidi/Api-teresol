@@ -1,4 +1,4 @@
-package com.teresol.meraapnabank.dto;
+package com.teresol.meraapnabank;
 
 public class NewBranchRequest {
     public String branchCode;

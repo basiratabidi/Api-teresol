@@ -1,4 +1,5 @@
-package com.teresol.meraapnabank.datasource;
+package com.teresol.meraapnabank;
+
 
 import io.agroal.api.AgroalDataSource;
 import io.quarkus.agroal.DataSource;

@@ -1,4 +1,4 @@
-package com.teresol.meraapnabank.dto;
+package com.teresol.meraapnabank;
 
 import java.math.BigDecimal;
 

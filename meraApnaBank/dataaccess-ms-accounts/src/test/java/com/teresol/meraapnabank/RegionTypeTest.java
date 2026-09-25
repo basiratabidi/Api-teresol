@@ -1,4 +1,4 @@
-package com.teresol.meraapnabank.datasource;
+package com.teresol.meraapnabank;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,5 +25,13 @@ public class RegionTypeTest {
     @Test
     void rejectsUnknownRegion() {
         assertThrows(BadRequestException.class, () -> RegionType.parse("ATLANTIS"));
+    }
+
+    @Test
+    void exposesCodePrefixPerRegion() {
+        assertEquals("NO", RegionType.NORTH.codePrefix());
+        assertEquals("SO", RegionType.SOUTH.codePrefix());
+        assertEquals("EA", RegionType.EAST.codePrefix());
+        assertEquals("WE", RegionType.WEST.codePrefix());
     }
 }
