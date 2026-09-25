@@ -27,7 +27,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +34,9 @@ import java.util.Map;
 @Path("/branches")
 public class BranchResource {
 
-    // PostgreSQL SQLSTATE for unique_violation
+    // PostgreSQL SQLSTATEs
     private static final String UNIQUE_VIOLATION = "23505";
+    private static final String FOREIGN_KEY_VIOLATION = "23503";
 
     @Inject
     Datasources datasources;
@@ -45,7 +45,7 @@ public class BranchResource {
     @Path("/{region}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<BranchDto> getBranches(@PathParam("region") String region) throws Exception {
-        RegionType regionType = parseRegion(region);
+        RegionType regionType = RegionType.parse(region);
         List<BranchDto> results = new ArrayList<>();
 
         try (Connection connection = datasources.getConnection(regionType);
@@ -70,7 +70,7 @@ public class BranchResource {
     public Map<String, Object> createBranch(NewBranchRequest request) throws Exception {
         validate(request);
 
-        RegionType regionType = parseRegion(request.regionCode);
+        RegionType regionType = RegionType.parse(request.regionCode);
         List<Selection> values = List.of(
                 new Selection("branch_code", request.branchCode),
                 new Selection("branch_name", request.branchName),
@@ -105,7 +105,7 @@ public class BranchResource {
     public Map<String, Object> updateBranch(@PathParam("region") String region,
             @PathParam("branchCode") String branchCode, UpdateBranchRequest request) throws Exception {
         validate(request);
-        RegionType regionType = parseRegion(region);
+        RegionType regionType = RegionType.parse(region);
         List<Selection> values = List.of(
                 new Selection("branch_name", request.branchName),
                 new Selection("city", request.city));
@@ -131,13 +131,22 @@ public class BranchResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Object> deleteBranch(@PathParam("region") String region,
             @PathParam("branchCode") String branchCode) throws Exception {
-        RegionType regionType = parseRegion(region);
+        RegionType regionType = RegionType.parse(region);
         List<Selection> where = List.of(new Selection("branch_code", branchCode));
 
         try (Connection connection = datasources.getConnection(regionType);
                 PreparedStatement statement = QueryBuilder.buildDelete(connection, Tables.BRANCH, where)) {
 
-            int rowsDeleted = statement.executeUpdate();
+            int rowsDeleted;
+            try {
+                rowsDeleted = statement.executeUpdate();
+            } catch (SQLException e) {
+                if (FOREIGN_KEY_VIOLATION.equals(e.getSQLState())) {
+                    throw new ClientErrorException("Branch " + branchCode + " still has accounts in "
+                            + regionType.name() + "; delete or move them first", Response.Status.CONFLICT);
+                }
+                throw e;
+            }
             if (rowsDeleted == 0) {
                 throw branchNotFound(regionType, branchCode);
             }
@@ -146,15 +155,6 @@ public class BranchResource {
             result.put("rowsDeleted", rowsDeleted);
             result.put("branchCode", branchCode);
             return result;
-        }
-    }
-
-    private RegionType parseRegion(String region) {
-        try {
-            return RegionType.valueOf(region.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Unknown region: " + region + ". Valid regions: "
-                    + Arrays.toString(RegionType.values()));
         }
     }
 

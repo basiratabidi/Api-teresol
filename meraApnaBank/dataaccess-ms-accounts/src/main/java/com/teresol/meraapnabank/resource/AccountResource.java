@@ -28,7 +28,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +35,9 @@ import java.util.Map;
 @Path("/accounts")
 public class AccountResource {
 
-    // PostgreSQL SQLSTATE for unique_violation
+    // PostgreSQL SQLSTATEs
     private static final String UNIQUE_VIOLATION = "23505";
+    private static final String FOREIGN_KEY_VIOLATION = "23503";
 
     @Inject
     Datasources datasources;
@@ -46,7 +46,7 @@ public class AccountResource {
     @Path("/{region}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<AccountDto> getAccounts(@PathParam("region") String region) throws Exception {
-        RegionType regionType = parseRegion(region);
+        RegionType regionType = RegionType.parse(region);
         List<AccountDto> results = new ArrayList<>();
 
         try (Connection connection = datasources.getConnection(regionType);
@@ -66,12 +66,12 @@ public class AccountResource {
     public Map<String, Object> createAccount(NewAccountRequest request) throws Exception {
         validate(request);
 
-        RegionType regionType = parseRegion(request.regionCode);
+        RegionType regionType = RegionType.parse(request.regionCode);
         List<Selection> values = List.of(
                 new Selection("account_number", request.accountNumber),
                 new Selection("account_holder_name", request.accountHolderName),
                 new Selection("branch_code", request.branchCode),
-                new Selection("account_type", request.accountType),
+                new Selection("account_type", request.accountType.toUpperCase()),
                 new Selection("balance", request.balance),
                 new Selection("region_code", regionType.name()));
 
@@ -85,6 +85,10 @@ public class AccountResource {
                 if (UNIQUE_VIOLATION.equals(e.getSQLState())) {
                     throw new ClientErrorException("Account " + request.accountNumber + " already exists in "
                             + regionType.name(), Response.Status.CONFLICT);
+                }
+                if (FOREIGN_KEY_VIOLATION.equals(e.getSQLState())) {
+                    throw new BadRequestException("Branch " + request.branchCode + " does not exist in "
+                            + regionType.name());
                 }
                 throw e;
             }
@@ -103,10 +107,10 @@ public class AccountResource {
     public Map<String, Object> updateAccount(@PathParam("region") String region,
             @PathParam("accountNumber") String accountNumber, UpdateAccountRequest request) throws Exception {
         validate(request);
-        RegionType regionType = parseRegion(region);
+        RegionType regionType = RegionType.parse(region);
         List<Selection> values = List.of(
                 new Selection("account_holder_name", request.accountHolderName),
-                new Selection("account_type", request.accountType),
+                new Selection("account_type", request.accountType.toUpperCase()),
                 new Selection("balance", request.balance));
         List<Selection> where = List.of(new Selection("account_number", accountNumber));
 
@@ -130,7 +134,7 @@ public class AccountResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Object> deleteAccount(@PathParam("region") String region,
             @PathParam("accountNumber") String accountNumber) throws Exception {
-        RegionType regionType = parseRegion(region);
+        RegionType regionType = RegionType.parse(region);
         List<Selection> where = List.of(new Selection("account_number", accountNumber));
 
         try (Connection connection = datasources.getConnection(regionType);
@@ -159,17 +163,12 @@ public class AccountResource {
         return dto;
     }
 
-    private RegionType parseRegion(String region) {
-        try {
-            return RegionType.valueOf(region.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Unknown region: " + region + ". Valid regions: "
-                    + Arrays.toString(RegionType.values()));
-        }
-    }
-
     private NotFoundException accountNotFound(RegionType region, String accountNumber) {
         return new NotFoundException("Account " + accountNumber + " not found in " + region.name());
+    }
+
+    private boolean isValidAccountType(String accountType) {
+        return "SAVINGS".equalsIgnoreCase(accountType) || "CURRENT".equalsIgnoreCase(accountType);
     }
 
     private void validate(UpdateAccountRequest request) {
@@ -179,8 +178,8 @@ public class AccountResource {
         if (request.accountHolderName == null || request.accountHolderName.isBlank()) {
             throw new BadRequestException("accountHolderName is required");
         }
-        if (request.accountType == null || request.accountType.isBlank()) {
-            throw new BadRequestException("accountType is required");
+        if (!isValidAccountType(request.accountType)) {
+            throw new BadRequestException("accountType must be SAVINGS or CURRENT");
         }
         if (request.balance == null || request.balance.compareTo(BigDecimal.ZERO) < 0) {
             throw new BadRequestException("balance must be zero or positive");
@@ -200,8 +199,8 @@ public class AccountResource {
         if (request.branchCode == null || request.branchCode.isBlank()) {
             throw new BadRequestException("branchCode is required");
         }
-        if (request.accountType == null || request.accountType.isBlank()) {
-            throw new BadRequestException("accountType is required");
+        if (!isValidAccountType(request.accountType)) {
+            throw new BadRequestException("accountType must be SAVINGS or CURRENT");
         }
         if (request.balance == null || request.balance.compareTo(BigDecimal.ZERO) < 0) {
             throw new BadRequestException("balance must be zero or positive");
